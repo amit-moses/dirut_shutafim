@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if apartments %}
+{% for apr in apartments %}
+<div class="col-sm-4">
+    <div class="panel panel-primary">
+        <div class="panel-heading">{{ apt.title }}</div>
+        <div class="panel-body"><img src="https://img.freepik.com/free-photo/blue-house-with-blue-roof-sky-background_1340-25953.jpg" class="img-responsive" style="width:100%" alt="Image">
+        </div>
+        <div class="panel-body">{{ apr }} <br> {{ apr.details }} available </div>
+        <!-- <form method="POST" action="/flights/buy/{{fl.id}}">
+            {% csrf_token %}
+            <input max="10" value="0" type="number" name="tickets" id="typeNumber" class="form-control" />
+            <input type="submit" value="order" class="btn btn-primary">
+        </form> -->
+        <form method="POST" action="">
+            <input type="submit" value="Delete" class="btn btn-danger">
+            <a href="" class="btn btn-primary">Edit</a>
+        </form>
+    </div>
+</div>
+{% endfor %}
+{% else %}
+    <p>No ads are available.</p>
+{% endif %}
+<script>
+  drk = document.getElementById(`idcat_4`)
+  if(drk) drk.classList.add("active")
+</script>
+{% endblock %}
