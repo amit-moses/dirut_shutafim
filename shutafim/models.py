@@ -5,14 +5,14 @@ import datetime
 
 
 class Apartment(models.Model):
-    publisher = models.ForeignKey(User, on_delete=models.CASCADE)
-    city = models.CharField(null=False, max_length=100)
-    street = models.CharField(max_length=100)
-    rent_price = models.IntegerField(default=0)
-    floor = models.IntegerField(default=0)
-    partners = models.IntegerField(default=0)
-    gender = models.IntegerField(default=0)
-    entry_date = models.DateField(default=datetime.date.today)
+    publisher = models.ForeignKey(User, on_delete=models.CASCADE) 
+    city = models.CharField(null=False, max_length=100)#
+    street = models.CharField(max_length=100)#
+    rent_price = models.IntegerField(default=0)#
+    floor = models.IntegerField(default=0)#
+    partners = models.IntegerField(default=0)#
+    gender = models.IntegerField(default=0)#
+    entry_date = models.DateField(default=datetime.date.today)#
     details = models.CharField(max_length=500, default='')
     title = models.CharField(max_length=200, default='')
 

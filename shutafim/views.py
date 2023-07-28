@@ -18,6 +18,24 @@ def index(request):
     context = {'apartments': Apartment.objects.all()}
     return render(request, 'index.html', context)
 
+def newadd(request, apr_id = -1):
+    if request.method == 'GET':
+        apr = False
+        if apr_id >0:
+            apr = Apartment.objects.filter(pk = apr_id).all()
+            if apr: 
+                apr = apr[0]
+        return render(request, 'addmanage.html', {'apr': apr})
+    
+    
+
+def single_page_view(request, apr_id):
+    apr = Apartment.objects.filter(pk = apr_id).all()
+    if apr: 
+        apr = apr[0]
+    context = {'apr': apr}
+    return render(request, 'singlepage.html', context)
+
 def myads(request):
 
     context = {'apartments': Apartment.objects.filter(id = request.user.id).all()}

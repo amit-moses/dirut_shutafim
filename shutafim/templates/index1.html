@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if apartments %}
+{% for apr in apartments %}
+<div class="col-sm-4">
+    <div class="panel panel-primary">
+        <div class="panel-heading">{{ apt.title }}</div>
+        <div class="panel-body"><img
+                src="https://img.freepik.com/free-photo/blue-house-with-blue-roof-sky-background_1340-25953.jpg"
+                class="img-responsive" style="width:100%" alt="Image">
+        </div>
+        <div class="panel-body">{{ apr }} <br> {{ apr.details }} available </div>
+        <div class="d-flex flex-column mt-4">
+            <a href="" class="btn btn-primary btn-sm">פרטים</a>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% else %}
+<p>No flights are available.</p>
+{% endif %}
+<script>
+    drk = document.getElementById(`idcat_0`)
+    if (drk) drk.classList.add("active")
+</script>
+{% endblock %}

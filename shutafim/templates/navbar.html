@@ -17,7 +17,8 @@
             <ul class="nav navbar-nav navbar-right">
                 <li id="idcat_0"><a href="{% url 'index' %}"><span class=""></span> חיפוש דירות</a></li>
                 {% if user.is_authenticated %}
-                <li id="idcat_4"><a href="{% url 'myads' %}"><span class=""></span> המודעות שלי</a></li>
+                <li id="idcat_5"><a href="{% url 'newadd' %}"><span class=""></span>מודעה חדשה</a></li>
+                <li id="idcat_4"><a href="{% url 'myads' %}"><span class=""></span>המודעות שלי</a></li>
                 <li id="idcat_3"><a href=""><span class=""></span> {{ user.username }}</a></li>
                 <li id="idcat_2"><a href="{% url 'logout_page' %}"><span class="glyphicon glyphicon-log-out"></span> Log-out</a></li>
                 {% else %}
