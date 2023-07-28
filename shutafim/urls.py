@@ -11,6 +11,7 @@ urlpatterns = [
     path("search/", views.search, name="search"),
     path("myads/", views.myads, name="myads"),
     path("apr/<int:apr_id>", views.single_page_view, name="single_page_view"),
-    path("add/<int:apr_id>", views.newadd, name="newadd"),
+    path("ad/<int:apr_id>", views.newadd, name="newadd"),
     path("ad/", views.newadd, name="newadd"),
+    path("api/", views.api, name="api"),
 ]

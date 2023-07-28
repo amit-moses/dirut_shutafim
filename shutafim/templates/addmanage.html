@@ -261,7 +261,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
 <div dir="rtl" class="container">
     <div class="New_form_sec">
-        <form>
+        <form method="POST" action="{% url 'api' %}" enctype="multipart/form-data">
+            {% csrf_token %}
             <div class="row">
                 <div class="col-sm-5">
                     <div class="form-field form-group" id="city-selection">
@@ -310,7 +311,7 @@
 
                 <div class="col-sm-3">
                     <div class="form-group">
-                        <select style="height: 40px;" class="form-control" aria-label="Default select example">
+                        <select style="height: 40px;" class="form-control" name="gender" aria-label="Default select example">
                             <option value="0">בן או בת</option>
                             <option value="1">בנים בלבד</option>
                             <option value="2">בנות בלבד</option>
@@ -326,7 +327,7 @@
                 </div>  
                 <div class="col-md-12">
                     <div class="form-group">
-                        <textarea maxlength="500" class="inputof" required="required"></textarea>
+                        <textarea name="details" maxlength="500" class="inputof" required="required"></textarea>
                         <label for="textarea" class="control-label">תוכן המודעה</label><i class="bar"></i>
                     </div>
                     <div style="align-items: center;" dir="ltr"">

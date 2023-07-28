@@ -8,15 +8,36 @@ from django.http import JsonResponse
 from shutafim.models import Apartment
 
 
-
-
-
-# Create your views here.
-
-
 def index(request):
     context = {'apartments': Apartment.objects.all()}
     return render(request, 'index.html', context)
+
+def api(request, apr_id = -1):
+    if apr_id == -1:
+        if request.method == 'POST':
+            city = request.POST.get('city-choice')
+            street = request.POST.get('street-choice')
+            floor = request.POST.get('floor')
+            gender = request.POST.get('gender')
+            entry_date = request.POST.get('entey_date')
+            partners = request.POST.get('partners')
+            rent_price = request.POST.get('rent')
+            title = request.POST.get('title')
+            details = request.POST.get('details')
+            images = []
+            for k in range(0,6):
+                img = request.FILES.get('image'+str(k))
+                if img: images.append(img)
+            
+            # if not city or not title or not details or not rent_price or not partners:
+            #     data = {'city': city, 'street': street, 'floor': floor, 'gender':gender,
+            #             'entry_date': entry_date, 'partners': partners, 'rent_price':rent_price,
+            #             'title':title, 'details':details}
+                # return render(request, 'addmanage.html', data)
+            print(city, street, entry_date, images)
+    return redirect('index')
+    
+
 
 def newadd(request, apr_id = -1):
     if request.method == 'GET':
@@ -26,8 +47,6 @@ def newadd(request, apr_id = -1):
             if apr: 
                 apr = apr[0]
         return render(request, 'addmanage.html', {'apr': apr})
-    
-    
 
 def single_page_view(request, apr_id):
     apr = Apartment.objects.filter(pk = apr_id).all()
