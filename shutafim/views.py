@@ -2,51 +2,88 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-
+import datetime
+from datetime import datetime
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from shutafim.models import Apartment
+from shutafim.models import Apartment, ImageData
+import asyncio
+
 
 
 def index(request):
-    context = {'apartments': Apartment.objects.all()}
+    context = {'apartments': Apartment.objects.order_by('-id').all()}
     return render(request, 'index.html', context)
 
 def api(request, apr_id = -1):
-    if apr_id == -1:
-        if request.method == 'POST':
-            city = request.POST.get('city-choice')
-            street = request.POST.get('street-choice')
-            floor = request.POST.get('floor')
-            gender = request.POST.get('gender')
-            entry_date = request.POST.get('entey_date')
-            partners = request.POST.get('partners')
-            rent_price = request.POST.get('rent')
-            title = request.POST.get('title')
-            details = request.POST.get('details')
-            images = []
-            for k in range(0,6):
-                img = request.FILES.get('image'+str(k))
-                if img: images.append(img)
-            
-            # if not city or not title or not details or not rent_price or not partners:
-            #     data = {'city': city, 'street': street, 'floor': floor, 'gender':gender,
-            #             'entry_date': entry_date, 'partners': partners, 'rent_price':rent_price,
-            #             'title':title, 'details':details}
-                # return render(request, 'addmanage.html', data)
-            print(city, street, entry_date, images)
-    return redirect('index')
+    print(apr_id,'-------------------------------------',request.POST.get('gender'))
+    if request.method == 'POST':
+        city = request.POST.get('city-choice')
+        street = request.POST.get('street-choice')
+        floor = request.POST.get('floor')
+        gender = request.POST.get('gender')
+        entry_date = request.POST.get('entey_date')
+        partners = request.POST.get('partners')
+        rent_price = request.POST.get('rent')
+        title = request.POST.get('title')
+        details = request.POST.get('details')
+        images, urlsexist = [], []
+        for k in range(0,6):
+            img = request.FILES.get('image'+str(k))
+            if img: images.append(img)
+
+        if apr_id == -1:
+            newApr = Apartment(publisher=request.user, city = city, street=street, rent_price= rent_price, floor = floor, partners= partners, 
+                                gender = gender, entry_date = entry_date, details=details, title = title)
+            newApr.save()
+            newApr.uploadImages(images)
+        elif apr_id:
+            apr = Apartment.objects.filter(pk = apr_id).all()
+            if apr: 
+                apr = apr[0]
+                if apr.publisher_id == request.user.id:
+                    apr.city = city
+                    apr.street=street
+                    apr.rent_price= int(rent_price)
+                    apr.floor = int(floor)
+                    apr.partners= partners
+                    apr.gender = int(gender) 
+                    apr.entry_date = entry_date
+                    apr.details=details
+                    apr. title = title
+                    apr.save()
+                    for k in range(0,6):
+                        trp = request.POST.get(f'imagenochange{k}')
+                        if trp: urlsexist.append(trp)
+                    print(images, urlsexist, '00000000000000000')
+                    apr.updateImages(images, urlsexist)
+    return redirect('myads')
+
+def delete_apr(request, apr_id=0):
+    if apr_id:
+        apr = Apartment.objects.filter(pk = apr_id).all()
+        if apr:
+            apr = apr[0]
+            if request.method == 'POST' and apr.publisher_id == request.user.id:
+                if apr.imagedata_set: 
+                    try:
+                        apr.deleteAllImages()
+                    finally:
+                        apr.delete()
+
+    return redirect('myads')
+
     
 
 
 def newadd(request, apr_id = -1):
     if request.method == 'GET':
-        apr = False
         if apr_id >0:
             apr = Apartment.objects.filter(pk = apr_id).all()
             if apr: 
                 apr = apr[0]
-        return render(request, 'addmanage.html', {'apr': apr})
+                return render(request, 'addmanage.html', {'apr': apr, 'rdate':apr.entry_date.strftime('%Y-%m-%d')})
+        return render(request, 'addmanage.html', {'apr': False, 'date_d': False})
 
 def single_page_view(request, apr_id):
     apr = Apartment.objects.filter(pk = apr_id).all()
@@ -55,9 +92,10 @@ def single_page_view(request, apr_id):
     context = {'apr': apr}
     return render(request, 'singlepage.html', context)
 
+
 def myads(request):
 
-    context = {'apartments': Apartment.objects.filter(id = request.user.id).all()}
+    context = {'apartments': Apartment.objects.filter(publisher = request.user.id).all()}
     return render(request, 'myads.html', context)
 
 def search(request):
@@ -79,7 +117,7 @@ def search(request):
     if search_key:
         query = query.filter(details__icontains = search_key) | query.filter(title__icontains = search_key)
     
-    return JsonResponse([k.toJSON() for k in query.all().order_by('-id').all()], safe=False)
+    return JsonResponse([k.toJSON() for k in query.order_by('-id').all()], safe=False)
     
     
     
@@ -128,6 +166,8 @@ def login_page(request):
 def logout_page(request):
     logout(request)
     return redirect('index')
+
+
 
 
 @login_required

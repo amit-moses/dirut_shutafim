@@ -166,18 +166,21 @@
     <div class="col-md-3 col-sm-6">
         <div class="product-grid">
             <div class="product-image">
-                <a href="apr/{{apr.id}}" class="image">
+                <a href="{% url 'single_page_view' %}{{apr.id}}" class="image">
                     <img class="pic-1" src="{% if apr.imagedata_set.all %}{{apr.imagedata_set.first}}{% else %} https://play-lh.googleusercontent.com/5rS-un965hkZuqUNA65RwkeqmGko91DVQHlAMCQ9lJlNguvXkCQzjl6OgAMOPZ2cCk4=w480-h960-rw {% endif %}">
                 </a>
                 <span class="product-discount-label">{{apr.city}}</span>
             </div>
             <div class="product-content">
-                <h3 class="title"><a href="apr/{{apr.id}}">{{apr.title}}</a></h3>
+                <h3 class="title"><a href="{% url 'single_page_view' %}{{apr.id}}">{{apr.title}}</a></h3>
                 <p class="price"> {{apr.details}}</p>
                 <div style="display: flex; align-items: stretch; justify-content: left;">
-                        <a style="flex-grow: 3; position: relative;" class="btn btn-danger" href="apr/{{apr.id}}">מחיקה</a>
+                        <form method="POST" action="{% url 'delete_apr' %}{{apr.id}}">
+                            {% csrf_token %}
+                            <input style="flex-grow: 3; position: relative;" type="submit" class="btn btn-danger" value="מחיקה">
+                        </form>
                         <div style="flex-grow: 1; position: relative;"></div>
-                        <a style="flex-grow: 3; position: relative;" class="btn btn-primary" href="apr/{{apr.id}}">עריכה</a>
+                        <a style="flex-grow: 3; position: relative;" class="btn btn-primary" href="{% url 'newadd' %}{{apr.id}}">עריכה</a>
 
                 </div>
             </div>

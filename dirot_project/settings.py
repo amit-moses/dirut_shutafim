@@ -27,6 +27,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+import os
+import json
+from dotenv import load_dotenv
+from firebase_admin import credentials,initialize_app
+load_dotenv()
+cred = credentials.Certificate(json.loads(os.environ.get('FIRE_KEY')))
+initialize_app(cred, {'storageBucket': 'dirot-5d085.appspot.com'})
 
 # Application definition
 

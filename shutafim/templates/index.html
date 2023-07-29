@@ -166,15 +166,15 @@
     <div class="col-md-3 col-sm-6">
         <div class="product-grid">
             <div class="product-image">
-                <a href="apr/{{apr.id}}" class="image">
+                <a href="{% url 'single_page_view' %}{{apr.id}}" class="image">
                     <img class="pic-1" src="{% if apr.imagedata_set.all %}{{apr.imagedata_set.first}}{% else %} https://play-lh.googleusercontent.com/5rS-un965hkZuqUNA65RwkeqmGko91DVQHlAMCQ9lJlNguvXkCQzjl6OgAMOPZ2cCk4=w480-h960-rw {% endif %}">
                 </a>
                 <span class="product-discount-label">{{apr.city}}</span>
             </div>
             <div class="product-content">
-                <h3 class="title"><a href="apr/{{apr.id}}">{{apr.title}}</a></h3>
+                <h3 class="title"><a href="{% url 'single_page_view' %}{{apr.id}}">{{apr.title}}</a></h3>
                 <p class="price"> {{apr.details}}</p>
-                <a class="add-to-cart" href="apr/{{apr.id}}">פרטים</a>
+                <a class="add-to-cart" href="{% url 'single_page_view' %}{{apr.id}}">פרטים</a>
             </div>
         </div>
     </div>
