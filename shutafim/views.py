@@ -2,18 +2,32 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-import datetime
 from datetime import datetime
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from shutafim.models import Apartment, ImageData
-import asyncio
 
 
 
 def index(request):
-    context = {'apartments': Apartment.objects.order_by('-id').all()}
-    return render(request, 'index.html', context)
+    max_id = request.GET.get('max_id')
+    city = request.GET.get('city')
+    street = request.GET.get('street')
+    rent_price_from = request.GET.get('rent_price_from')
+    rent_price_to = request.GET.get('rent_price_to')
+    gender = request.GET.get('gender')
+    search_key = request.GET.get('search_key')
+    url_search = f'http://127.0.0.1:8000/search/?'
+    if city : url_search += f'city={city}&'
+    if street : url_search += f'street={street}&'
+    if rent_price_from : url_search += f'rent_price_from={rent_price_from}&'
+    if rent_price_to : url_search += f'rent_price_to={rent_price_to}&'
+    if gender : url_search += f'gender={gender}&'
+    if search_key : url_search += f'search_key={search_key}'
+    
+    # context = {'apartments': Apartment.objects.order_by('-id').all()}
+
+    return render(request, 'index.html', {'url_params': url_search})
 
 def api(request, apr_id = -1):
     print(apr_id,'-------------------------------------',request.POST.get('gender'))
@@ -53,9 +67,10 @@ def api(request, apr_id = -1):
                     apr. title = title
                     apr.save()
                     for k in range(0,6):
+                        print('uuiioo')
                         trp = request.POST.get(f'imagenochange{k}')
-                        if trp: urlsexist.append(trp)
-                    print(images, urlsexist, '00000000000000000')
+                        if trp: 
+                            urlsexist.append(trp)
                     apr.updateImages(images, urlsexist)
     return redirect('myads')
 
@@ -107,7 +122,7 @@ def search(request):
     gender = request.GET.get('gender')
     search_key = request.GET.get('search_key')
     query = Apartment.objects
-    if max_id: query = query.filter(id__lt = max_id)
+    if int(max_id) != 0: query = query.filter(id__lt = max_id)
     if rent_price_from: query = query.filter(rent_price__gte = int(rent_price_from))
     if rent_price_to: query = query.filter(rent_price__lte  = int(rent_price_to))
     if gender: query = query.filter(gender  = int(gender))
@@ -117,7 +132,7 @@ def search(request):
     if search_key:
         query = query.filter(details__icontains = search_key) | query.filter(title__icontains = search_key)
     
-    return JsonResponse([k.toJSON() for k in query.order_by('-id').all()], safe=False)
+    return JsonResponse([k.toJSON() for k in query.order_by('-id')[:16]], safe=False)
     
     
     

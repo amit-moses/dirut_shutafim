@@ -22,7 +22,6 @@ class Apartment(models.Model):
         return self.city + ', ' + self.street+ ', ' + str(self.publisher)
     
     def toJSON(self):
-      images = {k.myurl for k in self.imagedata_set.all()}
       return {"id": self.id, 
               "city": self.city , 
               "street": self.street, 
@@ -33,7 +32,7 @@ class Apartment(models.Model):
               "entry_date": self.entry_date.strftime('%Y-%m-%d'),
               "details": self.details,
               "title": self.title,
-              "image": str(images)}
+              "image": self.imagedata_set.all()[0].myurl}
     
 
     def uploadImages(self,imglst, starting=0):
@@ -47,37 +46,33 @@ class Apartment(models.Model):
             if url_img: self.imagedata_set.create(myurl = url_img)
             print("your file url", url_img)
 
-
-    def contain(self, str_value, lst):
-        for linr in lst:
-            if str_value in linr: return True
-        return False
     
-    def updateImages(self, newimg, existimg):
-        multilong = len(self.imagedata_set.all())
-        bucket = storage.bucket()
-        for kk in range(multilong):
-            if not self.contain(f'ad_{str(self.id)}_{kk}.jpg', existimg):
-                blob = bucket.blob(f'ad_{str(self.id)}_{kk}.jpg')
-                if newimg:             
-                    blob.upload_from_file(newimg.pop())
-                else: 
-                    deletelst = self.imagedata_set.filter(myurl__icontains = f'ad_{str(self.id)}_{kk}.jpg')
-                    if deletelst:
-                        for item in deletelst: item.delete()
+    def updateImages(self,newimg, existimg):
+        try:
+            bucket = storage.bucket()
+            oldimg_lst = [oldimg.myurl for oldimg in self.imagedata_set.all()]
+            for oldimg in oldimg_lst:
+                if oldimg not in existimg:
+                    path = oldimg.replace('https://storage.googleapis.com/dirot-5d085.appspot.com/','')
+                    blob = bucket.blob(path)
                     blob.delete()
-        
-        while(newimg and multilong<6):
-            blob = bucket.blob(f'ad_{str(self.id)}_{multilong}.jpg')
-            blob.upload_from_file(newimg.pop())
-            blob.make_public()
-            url_img = blob.public_url
-            if url_img: self.imagedata_set.create(myurl = url_img)
-            multilong+=1
-
-
-
-
+                    self.imagedata_set.filter(myurl__icontains = path).delete()
+                
+        finally:
+            bucket = storage.bucket()
+            myindex, starter = 0,0
+            while myindex<6 and starter<len(newimg):
+                path = f'ad_{str(self.id)}_{myindex}.jpg'
+                if len(self.imagedata_set.filter(myurl__icontains = path).all()) == 0:
+                    blob = bucket.blob(path)
+                    blob.upload_from_file(newimg[starter])
+                    blob.make_public()
+                    url_img = blob.public_url
+                    print(url_img, 'en li mosag')
+                    if url_img: 
+                        self.imagedata_set.create(myurl = url_img)
+                    starter+=1
+                myindex+=1
 
     def deleteAllImages(self):
         bucket = storage.bucket()
