@@ -10,23 +10,28 @@ from shutafim.models import Apartment, ImageData
 
 
 def index(request):
-    max_id = request.GET.get('max_id')
-    city = request.GET.get('city')
-    street = request.GET.get('street')
+    # max_id = request.GET.get('max_id')
+    city = request.GET.get('city-choice')
+    street = request.GET.get('street-choice')
     rent_price_from = request.GET.get('rent_price_from')
     rent_price_to = request.GET.get('rent_price_to')
     gender = request.GET.get('gender')
     search_key = request.GET.get('search_key')
+    floor = request.GET.get('floor')
+    partners = request.GET.get('partners')
+    entry_month = request.GET.get('entry_month')
     url_search = f'http://127.0.0.1:8000/search/?'
-    if city : url_search += f'city={city}&'
-    if street : url_search += f'street={street}&'
+    if entry_month: url_search += f'entry_month={entry_month}&'
+    if city : url_search += f'city-choice={city}&'
+    if street : url_search += f'street-choice={street}&'
+    if floor : url_search += f'floor={floor}&'
+    if partners : url_search += f'partners={partners}&'
     if rent_price_from : url_search += f'rent_price_from={rent_price_from}&'
     if rent_price_to : url_search += f'rent_price_to={rent_price_to}&'
     if gender : url_search += f'gender={gender}&'
     if search_key : url_search += f'search_key={search_key}'
-    
+    url_search += 'a=0'
     # context = {'apartments': Apartment.objects.order_by('-id').all()}
-
     return render(request, 'index.html', {'url_params': url_search})
 
 def api(request, apr_id = -1):
@@ -115,19 +120,32 @@ def myads(request):
 
 def search(request):
     max_id = request.GET.get('max_id')
-    city = request.GET.get('city')
-    street = request.GET.get('street')
+    city = request.GET.get('city-choice')
+    street = request.GET.get('street-choice')
     rent_price_from = request.GET.get('rent_price_from')
     rent_price_to = request.GET.get('rent_price_to')
     gender = request.GET.get('gender')
     search_key = request.GET.get('search_key')
+    entry_month = request.GET.get('entry_month')
+    print(entry_month, '000000000000000000000000')
+    floor = request.GET.get('floor')
+    partners = request.GET.get('partners')
+
+
+
     query = Apartment.objects
-    if int(max_id) != 0: query = query.filter(id__lt = max_id)
+    print(entry_month)
+    if max_id and max_id != '0': query = query.filter(id__lt = max_id)
+    if floor: query.filter(floor = floor)
+    if partners: query.filter(partners = partners)
     if rent_price_from: query = query.filter(rent_price__gte = int(rent_price_from))
     if rent_price_to: query = query.filter(rent_price__lte  = int(rent_price_to))
     if gender: query = query.filter(gender  = int(gender))
+    if entry_month: 
+        query = query.filter(entry_date__month = int(entry_month.split('-')[1])) 
+        # query = query.filter(entry_date__year = int(entry_month.split('-')[0]))  
     if city: 
-        query = query.filter(city__iexact  = city)
+        query = query.filter(city__iexact  = city) 
         if street: query = query.filter(street__iexact = street)
     if search_key:
         query = query.filter(details__icontains = search_key) | query.filter(title__icontains = search_key)

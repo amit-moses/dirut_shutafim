@@ -430,8 +430,7 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <form class="modal-body" method="POST" action="{% url 'api' %}{% if apr %}{{apr.id}}{% endif %}" enctype="multipart/form-data">
-            {% csrf_token %}
+        <form class="modal-body" method="GET" action="{% url 'index' %}">
             <div class="row">
                 <div class="col-sm-6">
                     <div class="form-field form-group" id="city-selection">
@@ -462,7 +461,7 @@
                 </div>
                 <div class="col-sm-5">
                     <div class="form-group">
-                        <input {% if apr %}value="{{apr.rent_price}}" {% endif %} min="0" name="rent" type="number"
+                        <input {% if apr %}value="{{apr.rent_price}}" {% endif %} min="0" name="rent_price_from" type="number"
                             >
                         <label for="input" class="control-label">מתקציב</label>
                     </div>
@@ -470,7 +469,7 @@
 
                 <div class="col-sm-5">
                     <div class="form-group">
-                        <input {% if apr %}value="{{apr.rent_price}}" {% endif %} min="0" name="rent" type="number"
+                        <input {% if apr %}value="{{apr.rent_price}}" {% endif %} min="0" name="rent_price_to" type="number"
                             >
                         <label for="input" class="control-label">עד תקציב</label>
                     </div>
@@ -485,8 +484,8 @@
 
                 <div class="col-sm-4">
                     <div class="form-group">
-                        <input {% if rdate %}value="{{rdate}}" {% endif %} name="entey_date" type="date" >
-                        <label for="input" class="control-label">תאריך כניסה</label>
+                        <input {% if rdate %}value="{{rdate}}" {% endif %} name="entry_month" type="month" >
+                        <label for="input"  class="control-label">חודש כניסה</label>
                     </div>
                 </div>
 
@@ -504,7 +503,7 @@
                 <div class="col-sm-12">
                     <div class="form-group">
                         <input {% if apr %}value="{{apr.title}}" {% endif %} maxlength="200" class="inputof"
-                            name="title" type="text" >
+                            name="search_key" type="text" >
                         <label for="input" class="control-label">חיפוש חופשי</label>
                     </div>
                 </div>
@@ -524,11 +523,10 @@
     
     
 </div>
-<div id="loader" class="container">
+<div id="loader" class="loader container">
     <div class="row">
         <div class="col-md-12">
             <div class="loader">
-                <p>Loading...</p>
                 <div class="loader-inner"></div>
                 <div class="loader-inner"></div>
                 <div class="loader-inner"></div>
@@ -537,28 +535,30 @@
     </div>
 </div>
 <script>
-    $(window).scroll(function() {
-   if($(window).scrollTop() + $(window).height() == $(document).height()) {
-        loadNext16()
-   }
-});
-
-    drk = document.getElementById(`idcat_0`)
+   function isElementInViewport(el) {
+        var rect = el.getBoundingClientRect();
+        return (rect.top >= 0 &&rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)
+  );
+}
+isActive = true
+    drk = document.getElementById(`idcat_0`);
     if (drk) drk.classList.add("active")
     min_index= 0
     function loadNext16(){
         axios.get('{{ url_params }}&max_id='+ min_index).then(res => {
+            if(res.data.length){
                 console.log(res.data[0].image);
                 const resultHTML =''
                 for (let i = 0; i < res.data.length; i++) {
                    add_to = `<div class="col-md-3 col-sm-6"> <div class="product-grid"> <div class="product-image"> <a href="{% url 'single_page_view' %}${res.data[i].id}" class="image"> <img class="pic-1" src="${res.data[i].image}"> </a> <span class="product-discount-label">${res.data[i].city}</span> </div> <div class="product-content"> <h3 class="title"><a href="{% url 'single_page_view' %}${res.data[i].id}">${res.data[i].title}</a></h3> <p class="price"> ${res.data[i].details}</p> <a class="add-to-cart" href="{% url 'single_page_view' %}${res.data[i].id}">פרטים</a> </div> </div> </div>`
                    console.log(add_to);
                    containerall.innerHTML += add_to;
-                   if(min_index ===0){ min_index = res.data[0].d;}
-                   else if(res.data[0].id < min_index) {min_index = res.data[0].id;}
+                   if(min_index === 0){ min_index = res.data[0].id;}
+                   else{min_index = Math.min(res.data[i].id, min_index);}
                 }
-                
-
+                isActive = true;
+            }
+            else{ document.getElementById("loader").style.display = "none"; }
             })
                 
             
@@ -566,6 +566,12 @@
 
     }
     loadNext16()
+    document.onscroll = function(){if(isActive && isElementInViewport(loader)){
+        console.log('777');
+        isActive = false
+        loadNext16()
+
+    }};
     const api_url = "https://data.gov.il/api/3/action/datastore_search";
         // Cities endpoint
         const cities_resource_id = "5c78e9fa-c2e2-4771-93ff-7f400a12f7ba";
