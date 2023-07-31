@@ -3,6 +3,7 @@
 {% if apartments %}
 <style>
     .product-grid{
+    margin-top: 10px;
     font-family: 'Poppins', sans-serif;
     text-align: center;
     border-radius: 15px;
@@ -172,8 +173,8 @@
                 <span class="product-discount-label">{{apr.city}}</span>
             </div>
             <div class="product-content">
-                <h3 class="title"><a href="{% url 'single_page_view' %}{{apr.id}}">{{apr.title}}</a></h3>
-                <p class="price"> {{apr.details}}</p>
+                <h3 class="title"><a href="{% url 'single_page_view' %}{{apr.id}}">{{apr.short_title}}</a></h3>
+                <p class="price"> {{apr.short_details}}</p>
                 <div style="display: flex; align-items: stretch; justify-content: left;">
                         <form method="POST" action="{% url 'delete_apr' %}{{apr.id}}">
                             {% csrf_token %}

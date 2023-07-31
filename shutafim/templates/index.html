@@ -2,6 +2,7 @@
 {% block content %}
 <style>
     .product-grid{
+    margin-top: 10px;
     font-family: 'Poppins', sans-serif;
     text-align: center;
     border-radius: 15px;
@@ -439,7 +440,7 @@
                 <div class="col-sm-6">
                     <div class="form-field form-group" id="city-selection">
                         <input {% if apr %}value="{{apr.city}}" {% endif %} class="inputof" onchange="make_city()" type="text"
-                            list="cities-data" id="city-choice" name="city-choice"  />
+                            list="cities-data" id="city_choice" name="city_choice"  />
                         <datalist id="cities-data">
                             <option value="">טוען רשימת ערים...</option>
                         </datalist>
@@ -449,7 +450,7 @@
                 <div class="col-sm-6">
                     <div class="form-field form-group" id="street-selection">
                         <input {% if apr %}value="{{apr.street}}" {% endif %} class="inputof" type="text"
-                            list="streets-data" id="street-choice" name="street-choice" {% if not apr.street %} disabled {% endif %} />
+                            list="streets-data" id="street_choice" name="street_choice" {% if not apr.street %} disabled {% endif %} />
                         <datalist id="streets-data">
                             <option value="">
                         </datalist>
@@ -497,6 +498,7 @@
                     <div class="form-group">
                         <select style="height: 40px;" class="form-control" name="gender"
                             aria-label="Default select example">
+                            <option id="check_3" value="3">הכל</option>
                             <option id="check_0" value="0">בן או בת</option>
                             <option id="check_1" value="1">בנים בלבד</option>
                             <option id="check_2" value="2">בנות בלבד</option>
@@ -540,8 +542,8 @@
 </div>
 <script>
     function make_city(){
-            if (document.getElementById('city-choice').value){document.getElementById('street-choice').disabled = false;}
-            else{document.getElementById('street-choice').disabled = true;}
+            if (document.getElementById('city_choice').value){document.getElementById('street_choice').disabled = false;}
+            else{document.getElementById('street_choice').disabled = true;}
         }
 
    function isElementInViewport(el) {
@@ -553,8 +555,20 @@ isActive = true
     drk = document.getElementById(`idcat_0`);
     if (drk) drk.classList.add("active")
     min_index= 0
-    function loadNext16(){
-        axios.get('{{ url_params }}&max_id='+ min_index).then(res => {
+    function loadNext12(){
+        axios.get('{% url "search" %}', { 
+            params: { 
+                max_id: min_index,
+                {% if apr.city %} city_choice: '{{apr.city}}', {% endif %}
+                {% if apr.street %} street_choice: '{{apr.street}}', {% endif %}
+                {% if apr.rent_price_from %} rent_price_from: '{{apr.rent_price_from}}', {% endif %}
+                {% if apr.rent_price_to %} rent_price_to: '{{apr.rent_price_to}}', {% endif %}
+                {% if apr.gender %} gender: '{{apr.gender}}', {% endif %}
+                {% if apr.search_key %} search_key: '{{apr.search_key}}', {% endif %}
+                {% if apr.entry_month %} entry_month: '{{apr.entry_month}}', {% endif %}
+                {% if apr.floor %} floor: '{{apr.floor}}', {% endif %}
+                {% if apr.partners %} partners: '{{apr.partners}}' {% endif %}
+            }}).then(res => {
             if(res.data.length){
                 console.log(res.data[0].image);
                 const resultHTML =''
@@ -567,17 +581,17 @@ isActive = true
                 }
                 isActive = true;
             }
-            if(res.data.length<16){ document.getElementById("loader").style.display = "none"; }
+            if(res.data.length<12){ document.getElementById("loader").style.display = "none"; }
             })
                 
             
             
 
     }
-    loadNext16()
+    loadNext12()
     document.onscroll = function(){if(isActive && isElementInViewport(loader)){
         isActive = false
-        loadNext16()
+        loadNext12()
 
     }};
 
@@ -593,8 +607,8 @@ isActive = true
         const cities_data_id = "cities-data";
         const streets_data_id = "streets-data";
         // input elements
-        const cities_input = document.getElementById("city-choice");
-        const streets_input = document.getElementById("street-choice");
+        const cities_input = document.getElementById("city_choice");
+        const streets_input = document.getElementById("street_choice");
 
         /**
          * Get data from gov data API

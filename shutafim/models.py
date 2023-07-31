@@ -3,6 +3,8 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 import datetime
 from firebase_admin import credentials,initialize_app, storage
+import random
+
 
 class Apartment(models.Model):
     publisher = models.ForeignKey(User, on_delete=models.CASCADE) 
@@ -14,11 +16,23 @@ class Apartment(models.Model):
     gender = models.IntegerField(default=0)#
     entry_date = models.DateField(default=datetime.date.today)#
     details = models.CharField(max_length=500, default='')
-    title = models.CharField(max_length=200, default='')
+    title = models.CharField(max_length=24, default='')
 
     def __str__(self):
         return self.city + ', ' + self.street+ ', ' + str(self.publisher)
     
+    def short_title(self):
+      my_title = self.details
+      if len(my_title)> 22: my_title = my_title[:22]+'...'
+      elif not my_title: my_title = '  '
+      return my_title
+    
+    def short_details(self):
+      my_content = self.details
+      if len(my_content)> 25: my_content = my_content[:25]+'...'
+      elif not my_content: my_content = '  '
+      return my_content
+      
     def toJSON(self):
       return {"id": self.id, 
               "city": self.city , 
@@ -28,20 +42,9 @@ class Apartment(models.Model):
               "partners": self.partners,
               "gender": self.gender,
               "entry_date": self.entry_date.strftime('%Y-%m-%d'),
-              "details": self.details,
-              "title": self.title,
+              "details": self.short_details(),
+              "title": self.short_title(),
               "image": self.imagedata_set.all()[0].myurl}
-    
-
-    def uploadImages(self,imglst, starting=0):
-        bucket = storage.bucket()
-        for kk in range(starting,len(imglst)):
-            blob = bucket.blob(f'ad_{str(self.id)}_{kk}.jpg')
-            blob.upload_from_file(imglst[kk], content_type='image/jpg')
-            # Opt : if you want to make public access from the URL
-            blob.make_public()
-            url_img = blob.public_url
-            if url_img: self.imagedata_set.create(myurl = url_img)
 
     
     def updateImages_1(self,existimg):
@@ -56,33 +59,35 @@ class Apartment(models.Model):
                 blob.delete()
                 self.imagedata_set.filter(myurl__icontains = path).delete()
 
-    def updateImages_2(self,newimg):
+    def make_random_name(self):
+        options = 'abcdefg12345hij6789'
+        newId = [options[random.randint(0, len(options)-1)] for k in range(6)]
+        return ''.join(newId)
+    
+
+    def uploadImages(self,newimg):
         bucket = storage.bucket()
-        myindex, starter = 0,0
-        while myindex<6 and starter<len(newimg):
-            path = f'ad_{str(self.id)}_{myindex}.jpg'
-            if len(self.imagedata_set.filter(myurl__icontains = path).all()) == 0:
-                blob = bucket.blob(path)
-                blob.upload_from_file(newimg[starter],content_type='image/jpg')
-                blob.make_public()
-                url_img = blob.public_url
-                if url_img: 
-                    self.imagedata_set.create(myurl = url_img)
-                starter+=1
-            myindex+=1
+        for kk in range(len(newimg)):
+            path = f'ad{self.id}_{self.make_random_name()}'
+            while self.imagedata_set.filter(myurl__icontains = path).all():
+                path = f'ad{self.id}_{self.make_random_name()}'
+            blob = bucket.blob(path)
+            blob.upload_from_file(newimg[kk],content_type='image/jpg')
+            blob.make_public()
+            url_img = blob.public_url
+            if url_img: self.imagedata_set.create(myurl = url_img)
 
     def updateImages(self,newimg, existimg):
         self.updateImages_1(existimg)
-        self.updateImages_2(newimg)
+        self.uploadImages(newimg)
 
     def deleteAllImages(self):
         bucket = storage.bucket()
-        kk=0
         for im in self.imagedata_set.all():
-            blob = bucket.blob(f'ad_{str(self.id)}_{kk}.jpg')
+            path = im.myurl.replace('https://storage.googleapis.com/diro-ac902.appspot.com/','')
+            blob = bucket.blob(path)
             blob.delete()
             im.delete()
-            kk+=1
     
 class ImageData(models.Model): 
     apartment = models.ForeignKey(Apartment, on_delete=models.CASCADE)

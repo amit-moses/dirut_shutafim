@@ -271,7 +271,7 @@
                 <div class="col-sm-5">
                     <div class="form-field form-group" id="city-selection">
                         <input {% if apr %}value="{{apr.city}}" {% endif %} class="inputof" type="text"
-                            list="cities-data" id="city-choice" name="city-choice" onchange="make_city()" required />
+                            list="cities-data" id="city_choice" name="city_choice" onchange="make_city()" required />
                         <datalist id="cities-data">
                             <option value="">טוען רשימת ערים...</option>
                         </datalist>
@@ -281,7 +281,7 @@
                 <div class="col-sm-5">
                     <div class="form-field form-group" id="street-selection">
                         <input {% if apr %}value="{{apr.street}}" {% endif %} class="inputof" type="text"
-                            list="streets-data" id="street-choice" name="street-choice" required {% if not apr.street %} disabled {% endif %} />
+                            list="streets-data" id="street_choice" name="street_choice" required {% if not apr.street %} disabled {% endif %} />
                         <datalist id="streets-data">
                             <option value="">
                         </datalist>
@@ -330,7 +330,7 @@
                 </div>
                 <div class="col-sm-12">
                     <div class="form-group">
-                        <input {% if apr %}value="{{apr.title}}" {% endif %} maxlength="200" class="inputof"
+                        <input {% if apr %}value="{{apr.title}}" {% endif %} maxlength="24" class="inputof"
                             name="title" type="text" required>
                         <label for="input" class="control-label">כותרת המודעה</label>
                     </div>
@@ -382,8 +382,8 @@
         if (drk) drk.classList.add("active")
 
         function make_city(){
-            if (document.getElementById('city-choice').value){document.getElementById('street-choice').disabled = false;}
-            else{document.getElementById('street-choice').disabled = true;}
+            if (document.getElementById('city_choice').value){document.getElementById('street_choice').disabled = false;}
+            else{document.getElementById('street_choice').disabled = true;}
         }
 
         const api_url = "https://data.gov.il/api/3/action/datastore_search";
@@ -398,8 +398,8 @@
         const cities_data_id = "cities-data";
         const streets_data_id = "streets-data";
         // input elements
-        const cities_input = document.getElementById("city-choice");
-        const streets_input = document.getElementById("street-choice");
+        const cities_input = document.getElementById("city_choice");
+        const streets_input = document.getElementById("street_choice");
 
         /**
          * Get data from gov data API

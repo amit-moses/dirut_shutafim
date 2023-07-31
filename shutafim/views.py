@@ -11,36 +11,27 @@ from shutafim.models import Apartment, ImageData
 
 def index(request):
     # max_id = request.GET.get('max_id')
-    city = request.GET.get('city-choice')
-    street = request.GET.get('street-choice')
+    city = request.GET.get('city_choice')
+    street = request.GET.get('street_choice')
     rent_price_from = request.GET.get('rent_price_from')
     rent_price_to = request.GET.get('rent_price_to')
+    print('s3',rent_price_from, rent_price_to)
     gender = request.GET.get('gender')
     search_key = request.GET.get('search_key')
+    print(gender, 'mmmm')
     floor = request.GET.get('floor')
     partners = request.GET.get('partners')
     entry_month = request.GET.get('entry_month')
-    url_search = f'http://127.0.0.1:8000/search/?'
-    if entry_month: url_search += f'entry_month={entry_month}&'
-    if city : url_search += f'city-choice={city}&'
-    if street : url_search += f'street-choice={street}&'
-    if floor : url_search += f'floor={floor}&'
-    if partners : url_search += f'partners={partners}&'
-    if rent_price_from : url_search += f'rent_price_from={rent_price_from}&'
-    if rent_price_to : url_search += f'rent_price_to={rent_price_to}&'
-    if gender : url_search += f'gender={gender}&'
-    if search_key : url_search += f'search_key={search_key}'
-    url_search += 'a=0' #!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     search_value = {'city': city if city else '', 'street': street if street else '', 'rent_price_from': rent_price_from, 
                     'rent_price_to': rent_price_to, 'gender':gender, 'search_key':search_key if search_key else '', 'entry_month':entry_month,
                     'floor':floor, 'partners':partners, }
-    return render(request, 'index.html', {'url_params': url_search, 'apr':search_value})
+    return render(request, 'index.html', {'apr':search_value})
 
 @login_required
 def api(request, apr_id = -1):
     if request.method == 'POST':
-        city = request.POST.get('city-choice')
-        street = request.POST.get('street-choice')
+        city = request.POST.get('city_choice')
+        street = request.POST.get('street_choice')
         floor = request.POST.get('floor')
         gender = request.POST.get('gender')
         entry_date = request.POST.get('entey_date')
@@ -122,8 +113,9 @@ def myads(request):
 
 def search(request):
     max_id = request.GET.get('max_id')
-    city = request.GET.get('city-choice')
-    street = request.GET.get('street-choice')
+    city = request.GET.get('city_choice')
+    street = request.GET.get('street_choice')
+    print(street, '------------11')
     rent_price_from = request.GET.get('rent_price_from')
     rent_price_to = request.GET.get('rent_price_to')
     gender = request.GET.get('gender')
@@ -134,21 +126,25 @@ def search(request):
 
     query = Apartment.objects
     if max_id and max_id != '0': query = query.filter(id__lt = max_id)
-    if floor: query.filter(floor = floor)
-    if partners: query.filter(partners = partners)
+    print(rent_price_from, rent_price_to)
     if rent_price_from: query = query.filter(rent_price__gte = int(rent_price_from))
     if rent_price_to: query = query.filter(rent_price__lte  = int(rent_price_to))
-    if gender: query = query.filter(gender  = int(gender))
-    if entry_month: 
-        query = query.filter(entry_date__month = int(entry_month.split('-')[1])) 
-        # query = query.filter(entry_date__year = int(entry_month.split('-')[0]))  
+    print(query.count(), '--11--')
+    if floor: query = query.filter(floor = floor)
+    if partners: query = query.filter(partners = partners)
+    if gender: 
+        print(gender, 'kkkkk')
+        if int(gender) != 3: query = query.filter(gender  = int(gender))
+    if entry_month: query = query.filter(entry_date__month = int(entry_month.split('-')[1])) 
     if city: 
         query = query.filter(city__iexact  = city) 
-        if street: query = query.filter(street__iexact = street)
+        print(street, 'llllllp')
+        if street: 
+            query = query.filter(street__iexact = street)
     if search_key:
         query = query.filter(details__icontains = search_key) | query.filter(title__icontains = search_key)
     
-    return JsonResponse([k.toJSON() for k in query.order_by('-id')[:16]], safe=False)
+    return JsonResponse([k.toJSON() for k in query.order_by('-id')[:12]], safe=False)
     
     
     
