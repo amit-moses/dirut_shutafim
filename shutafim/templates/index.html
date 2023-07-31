@@ -299,6 +299,10 @@
         padding: 13px 15px;
         border-radius: 5px;
     }
+    .form-group input:disabled {
+        background-color: rgb(241, 241, 241);
+        opacity: 1;
+    }
 
     .form-group textarea {
 
@@ -418,7 +422,7 @@
 
 <!-- Button trigger modal -->
 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-    Launch demo modal
+    &nbsp; חיפוש &nbsp;&nbsp;&nbsp;<i class="glyphicon glyphicon-search"></i>
   </button>
 <!-- Modal -->
 <div dir="rtl" class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -434,7 +438,7 @@
             <div class="row">
                 <div class="col-sm-6">
                     <div class="form-field form-group" id="city-selection">
-                        <input {% if apr %}value="{{apr.city}}" {% endif %} class="inputof" type="text"
+                        <input {% if apr %}value="{{apr.city}}" {% endif %} class="inputof" onchange="make_city()" type="text"
                             list="cities-data" id="city-choice" name="city-choice"  />
                         <datalist id="cities-data">
                             <option value="">טוען רשימת ערים...</option>
@@ -445,7 +449,7 @@
                 <div class="col-sm-6">
                     <div class="form-field form-group" id="street-selection">
                         <input {% if apr %}value="{{apr.street}}" {% endif %} class="inputof" type="text"
-                            list="streets-data" id="street-choice" name="street-choice"  />
+                            list="streets-data" id="street-choice" name="street-choice" {% if not apr.street %} disabled {% endif %} />
                         <datalist id="streets-data">
                             <option value="">
                         </datalist>
@@ -461,7 +465,7 @@
                 </div>
                 <div class="col-sm-5">
                     <div class="form-group">
-                        <input {% if apr %}value="{{apr.rent_price}}" {% endif %} min="0" name="rent_price_from" type="number"
+                        <input {% if apr %}value="{{apr.rent_price_from}}" {% endif %} min="0" name="rent_price_from" type="number"
                             >
                         <label for="input" class="control-label">מתקציב</label>
                     </div>
@@ -469,7 +473,7 @@
 
                 <div class="col-sm-5">
                     <div class="form-group">
-                        <input {% if apr %}value="{{apr.rent_price}}" {% endif %} min="0" name="rent_price_to" type="number"
+                        <input {% if apr %}value="{{apr.rent_price_to}}" {% endif %} min="0" name="rent_price_to" type="number"
                             >
                         <label for="input" class="control-label">עד תקציב</label>
                     </div>
@@ -484,7 +488,7 @@
 
                 <div class="col-sm-4">
                     <div class="form-group">
-                        <input {% if rdate %}value="{{rdate}}" {% endif %} name="entry_month" type="month" >
+                        <input {% if apr %}value="{{apr.entry_month}}" {% endif %} name="entry_month" type="month" >
                         <label for="input"  class="control-label">חודש כניסה</label>
                     </div>
                 </div>
@@ -502,7 +506,7 @@
                 </div>
                 <div class="col-sm-12">
                     <div class="form-group">
-                        <input {% if apr %}value="{{apr.title}}" {% endif %} maxlength="200" class="inputof"
+                        <input {% if apr %}value="{{apr.search_key}}" {% endif %} maxlength="200" class="inputof"
                             name="search_key" type="text" >
                         <label for="input" class="control-label">חיפוש חופשי</label>
                     </div>
@@ -535,6 +539,11 @@
     </div>
 </div>
 <script>
+    function make_city(){
+            if (document.getElementById('city-choice').value){document.getElementById('street-choice').disabled = false;}
+            else{document.getElementById('street-choice').disabled = true;}
+        }
+
    function isElementInViewport(el) {
         var rect = el.getBoundingClientRect();
         return (rect.top >= 0 &&rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)
@@ -558,7 +567,7 @@ isActive = true
                 }
                 isActive = true;
             }
-            else{ document.getElementById("loader").style.display = "none"; }
+            if(res.data.length<16){ document.getElementById("loader").style.display = "none"; }
             })
                 
             
@@ -567,11 +576,11 @@ isActive = true
     }
     loadNext16()
     document.onscroll = function(){if(isActive && isElementInViewport(loader)){
-        console.log('777');
         isActive = false
         loadNext16()
 
     }};
+
     const api_url = "https://data.gov.il/api/3/action/datastore_search";
         // Cities endpoint
         const cities_resource_id = "5c78e9fa-c2e2-4771-93ff-7f400a12f7ba";
@@ -666,5 +675,6 @@ isActive = true
                 32000
             );
         });
+        document.getElementById("check_{{apr.gender}}").selected = "true";
 </script>
 {% endblock %}

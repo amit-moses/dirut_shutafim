@@ -2,9 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 import datetime
-import firebase_admin
 from firebase_admin import credentials,initialize_app, storage
-
 
 class Apartment(models.Model):
     publisher = models.ForeignKey(User, on_delete=models.CASCADE) 
@@ -39,40 +37,43 @@ class Apartment(models.Model):
         bucket = storage.bucket()
         for kk in range(starting,len(imglst)):
             blob = bucket.blob(f'ad_{str(self.id)}_{kk}.jpg')
-            blob.upload_from_file(imglst[kk])
+            blob.upload_from_file(imglst[kk], content_type='image/jpg')
             # Opt : if you want to make public access from the URL
             blob.make_public()
             url_img = blob.public_url
             if url_img: self.imagedata_set.create(myurl = url_img)
-            print("your file url", url_img)
 
     
+    def updateImages_1(self,existimg):
+        bucket = storage.bucket()
+        oldimg_lst = [oldimg.myurl for oldimg in self.imagedata_set.all()]
+        for oldimg in oldimg_lst:
+            if oldimg not in existimg:
+                print('----------------------00000ros', oldimg)
+                path = oldimg.replace('https://storage.googleapis.com/diro-ac902.appspot.com/','')
+                print(path)
+                blob = bucket.blob(path)
+                blob.delete()
+                self.imagedata_set.filter(myurl__icontains = path).delete()
+
+    def updateImages_2(self,newimg):
+        bucket = storage.bucket()
+        myindex, starter = 0,0
+        while myindex<6 and starter<len(newimg):
+            path = f'ad_{str(self.id)}_{myindex}.jpg'
+            if len(self.imagedata_set.filter(myurl__icontains = path).all()) == 0:
+                blob = bucket.blob(path)
+                blob.upload_from_file(newimg[starter],content_type='image/jpg')
+                blob.make_public()
+                url_img = blob.public_url
+                if url_img: 
+                    self.imagedata_set.create(myurl = url_img)
+                starter+=1
+            myindex+=1
+
     def updateImages(self,newimg, existimg):
-        try:
-            bucket = storage.bucket()
-            oldimg_lst = [oldimg.myurl for oldimg in self.imagedata_set.all()]
-            for oldimg in oldimg_lst:
-                if oldimg not in existimg:
-                    path = oldimg.replace('https://storage.googleapis.com/dirot-5d085.appspot.com/','')
-                    blob = bucket.blob(path)
-                    blob.delete()
-                    self.imagedata_set.filter(myurl__icontains = path).delete()
-                
-        finally:
-            bucket = storage.bucket()
-            myindex, starter = 0,0
-            while myindex<6 and starter<len(newimg):
-                path = f'ad_{str(self.id)}_{myindex}.jpg'
-                if len(self.imagedata_set.filter(myurl__icontains = path).all()) == 0:
-                    blob = bucket.blob(path)
-                    blob.upload_from_file(newimg[starter])
-                    blob.make_public()
-                    url_img = blob.public_url
-                    print(url_img, 'en li mosag')
-                    if url_img: 
-                        self.imagedata_set.create(myurl = url_img)
-                    starter+=1
-                myindex+=1
+        self.updateImages_1(existimg)
+        self.updateImages_2(newimg)
 
     def deleteAllImages(self):
         bucket = storage.bucket()

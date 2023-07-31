@@ -30,12 +30,14 @@ def index(request):
     if rent_price_to : url_search += f'rent_price_to={rent_price_to}&'
     if gender : url_search += f'gender={gender}&'
     if search_key : url_search += f'search_key={search_key}'
-    url_search += 'a=0'
-    # context = {'apartments': Apartment.objects.order_by('-id').all()}
-    return render(request, 'index.html', {'url_params': url_search})
+    url_search += 'a=0' #!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    search_value = {'city': city if city else '', 'street': street if street else '', 'rent_price_from': rent_price_from, 
+                    'rent_price_to': rent_price_to, 'gender':gender, 'search_key':search_key if search_key else '', 'entry_month':entry_month,
+                    'floor':floor, 'partners':partners, }
+    return render(request, 'index.html', {'url_params': url_search, 'apr':search_value})
 
+@login_required
 def api(request, apr_id = -1):
-    print(apr_id,'-------------------------------------',request.POST.get('gender'))
     if request.method == 'POST':
         city = request.POST.get('city-choice')
         street = request.POST.get('street-choice')
@@ -55,6 +57,7 @@ def api(request, apr_id = -1):
             newApr = Apartment(publisher=request.user, city = city, street=street, rent_price= rent_price, floor = floor, partners= partners, 
                                 gender = gender, entry_date = entry_date, details=details, title = title)
             newApr.save()
+            print('1111110',images)
             newApr.uploadImages(images)
         elif apr_id:
             apr = Apartment.objects.filter(pk = apr_id).all()
@@ -72,13 +75,13 @@ def api(request, apr_id = -1):
                     apr. title = title
                     apr.save()
                     for k in range(0,6):
-                        print('uuiioo')
                         trp = request.POST.get(f'imagenochange{k}')
                         if trp: 
                             urlsexist.append(trp)
                     apr.updateImages(images, urlsexist)
     return redirect('myads')
 
+@login_required
 def delete_apr(request, apr_id=0):
     if apr_id:
         apr = Apartment.objects.filter(pk = apr_id).all()
@@ -95,7 +98,7 @@ def delete_apr(request, apr_id=0):
 
     
 
-
+@login_required
 def newadd(request, apr_id = -1):
     if request.method == 'GET':
         if apr_id >0:
@@ -112,9 +115,8 @@ def single_page_view(request, apr_id):
     context = {'apr': apr}
     return render(request, 'singlepage.html', context)
 
-
+@login_required
 def myads(request):
-
     context = {'apartments': Apartment.objects.filter(publisher = request.user.id).all()}
     return render(request, 'myads.html', context)
 
@@ -127,14 +129,10 @@ def search(request):
     gender = request.GET.get('gender')
     search_key = request.GET.get('search_key')
     entry_month = request.GET.get('entry_month')
-    print(entry_month, '000000000000000000000000')
     floor = request.GET.get('floor')
     partners = request.GET.get('partners')
 
-
-
     query = Apartment.objects
-    print(entry_month)
     if max_id and max_id != '0': query = query.filter(id__lt = max_id)
     if floor: query.filter(floor = floor)
     if partners: query.filter(partners = partners)

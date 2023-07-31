@@ -257,8 +257,9 @@
         font-size: 15px;
     }
 
-    .inputof {
-        background: #495057;
+    .form-group input:disabled {
+        background-color: rgb(241, 241, 241);
+        opacity: 1;
     }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
@@ -270,7 +271,7 @@
                 <div class="col-sm-5">
                     <div class="form-field form-group" id="city-selection">
                         <input {% if apr %}value="{{apr.city}}" {% endif %} class="inputof" type="text"
-                            list="cities-data" id="city-choice" name="city-choice" required />
+                            list="cities-data" id="city-choice" name="city-choice" onchange="make_city()" required />
                         <datalist id="cities-data">
                             <option value="">טוען רשימת ערים...</option>
                         </datalist>
@@ -280,7 +281,7 @@
                 <div class="col-sm-5">
                     <div class="form-field form-group" id="street-selection">
                         <input {% if apr %}value="{{apr.street}}" {% endif %} class="inputof" type="text"
-                            list="streets-data" id="street-choice" name="street-choice" required />
+                            list="streets-data" id="street-choice" name="street-choice" required {% if not apr.street %} disabled {% endif %} />
                         <datalist id="streets-data">
                             <option value="">
                         </datalist>
@@ -380,8 +381,10 @@
         drk = document.getElementById(`idcat_5`)
         if (drk) drk.classList.add("active")
 
-
-
+        function make_city(){
+            if (document.getElementById('city-choice').value){document.getElementById('street-choice').disabled = false;}
+            else{document.getElementById('street-choice').disabled = true;}
+        }
 
         const api_url = "https://data.gov.il/api/3/action/datastore_search";
         // Cities endpoint
@@ -477,11 +480,12 @@
                 32000
             );
         });
-        var statfrom = {% if apr %}{{apr.imagedata_set.all|length}}{% else %}0{% endif %} -1
+        var statfrom = {% if apr %}{{apr.imagedata_set.all|length}}-1{% else %}0{% endif %}
         var myindex = []
         for (let i = 5; i > statfrom; i--) {
             myindex.push('image'+i)
         }
+        console.log(myindex)
         $(".imgAdd").click(function () {
             if (myindex.length > 0) {
                 var x = myindex.pop()
