@@ -6,7 +6,8 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from shutafim.models import Apartment, ImageData
-
+from django.core.mail import EmailMessage, get_connection
+from django.conf import settings
 
 
 def index(request):
@@ -189,14 +190,18 @@ def login_page(request):
         else:
             messages.error(request, f"log")
         return render(request, 'login.html', {'username1': username, 'log': 'log'})
+    
+    next = request.GET.get('next')
+    if next:
+        mes = ''
+        if next== '/rest_password_sent/': mes = 'אם המייל שהזנת רשום, נשלח אליך קישור לאיפוס הסיסמא, נא לבדוק בתיבת המייל או בתיבת הודעות הספאם'
+        elif next == 'set': mes = 'סיסמתך שונתה בהצלחה, ניתן להתחבר' 
+        return render(request, 'login.html', {'reset': mes})
     return render(request, 'login.html')
 
 def logout_page(request):
     logout(request)
     return redirect('index')
-
-from django.core.mail import EmailMessage, get_connection
-from django.conf import settings
 
 def send_email(toemail, mysubject, mymessage):  
     with get_connection(  
@@ -211,3 +216,20 @@ def send_email(toemail, mysubject, mymessage):
         recipient_list = [toemail, ]  
         message = mymessage 
         EmailMessage(subject, message, email_from, recipient_list, connection=connection).send()  
+    
+def send_email_to_publisher(request, apr_id = 0):
+    mes_content = request.POST.get('mes_content')
+    mes_from = request.POST.get('mes_from')
+    mes_contact = request.POST.get('mes_contact')
+    apr = Apartment.objects.filter(pk = apr_id).all()
+    errmes = 1
+    if apr and apr_id: 
+        apr = apr[0]
+        user_to = apr.publisher
+        mail = f'{user_to.first_name} שלום, \n הושארה לך הודעה בנוגע לדירה שפרסמת באתר \n הדירה: {str(apr)}, {apr.get_url()}\n מאת: {mes_from}\n תוכן ההודעה: {mes_content} \n פרטים ליצירת קשר: {mes_contact} \n \n '
+        print(mail)
+        send_email(user_to.email, f'הודעה חדשה מ{mes_from} בקשר לדירה', mail)
+        errmes = 2
+    
+    context = {'apr': apr, 'errmes': errmes}
+    return render(request, 'singlepage.html', context)

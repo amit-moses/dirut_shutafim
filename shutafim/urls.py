@@ -20,11 +20,13 @@ urlpatterns = [
     path("api/delete/<int:apr_id>", views.delete_apr, name="delete_apr"),
     path("api/", views.api, name="api"),
     path("api/<int:apr_id>", views.api, name="api"),
-
-    path("rest_password/", auth_views.PasswordResetView.as_view(), name='reset_password'),
+    path("send_mes/", views.send_email_to_publisher, name="send_email_to_publisher"),
+    path("send_mes/<apr_id>", views.send_email_to_publisher, name="send_email_to_publisher"),
+    
+    path("rest_password/", auth_views.PasswordResetView.as_view(template_name = 'reset/password_reset.html', html_email_template_name='reset/password_reset_email.html'), name='reset_password'),
     path("rest_password_sent/", auth_views.PasswordChangeDoneView.as_view(), name='password_reset_done'),
-    path("rest/<uidb64>/<token>/", auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-    path("rest_password_complete/", auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    path("rest/<uidb64>/<token>/", auth_views.PasswordResetConfirmView.as_view(template_name = 'reset/password_confirm.html'), name='password_reset_confirm'),
+    path("rest_password_complete/", auth_views.PasswordResetCompleteView.as_view(template_name = 'reset/password_reset_done.html'), name='password_reset_complete'),
     
     
 ]

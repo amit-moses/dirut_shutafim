@@ -226,9 +226,230 @@
     .card-body {
         padding: 0.3rem 0.3rem 0.2rem
     }
+    .form-radio,
+    .form-group {
+        position: relative;
+        margin-top: 0;
+        margin-bottom: 25px;
+    }
+
+    select,
+    .form-group input,
+    .form-group textarea {
+        resize: none;
+        display: block;
+        background: none;
+        padding: 0.125rem 0.125rem 0.0625rem;
+        font-size: 1rem;
+        border-width: 0;
+        border-color: transparent;
+        line-height: 1.9;
+        width: 100%;
+        color: transparent;
+        -webkit-transition: all 0.28s ease;
+        transition: all 0.28s ease;
+        box-shadow: none;
+        background-color: #1a73e8;
+    }
+
+    select,
+    .form-group input {
+        height: 1.9rem;
+    }
+
+    .form-group .control-label {
+        position: absolute;
+        top: 0.25rem;
+        pointer-events: none;
+        padding-right: 0.125rem;
+        z-index: 1;
+        color: #b3b3b3;
+        font-size: 1rem;
+        font-weight: normal;
+        -webkit-transition: all 0.28s ease;
+        transition: all 0.28s ease;
+    }
+
+    select:focus,
+    .form-group select:focus,
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+    }
+
+    .form-group select,
+    .form-group input:focus,
+    .form-group input:valid,
+    .form-group input.form-file,
+    .form-group input.has-value,
+    .form-group textarea:focus,
+    .form-group textarea:valid,
+    .form-group textarea.form-file,
+    .form-group textarea.has-value {
+        color: #333;
+    }
+
+    .form-group input,
+    .form-group textarea {
+
+        display: block;
+        background: none;
+        padding: 0.125rem 0.125rem 0.0625rem;
+        font-size: 16px;
+        border-width: 0;
+        line-height: 1.9;
+        width: 100%;
+        color: transparent;
+        -webkit-transition: all 0.28s ease;
+        transition: all 0.28s ease;
+        box-shadow: none;
+    }
+
+    .form-group input {
+        height: 1.9rem;
+    }
+
+    .form-group select:focus~.control-label,
+    .form-group input:focus~.control-label,
+    .form-group textarea:focus~.control-label {
+        color: #337ab7;
+    }
+
+    /* Main Focus */
+
+
+    .form-group select~.control-label,
+    .form-group userarea~.control-label,
+    .form-group input:focus~.control-label,
+    .form-group input:valid~.control-label,
+    .form-group input.form-file~.control-label,
+    .form-group input.has-value~.control-label,
+    .form-group textarea.has-value~.control-label {
+        top: -14px !important;
+        background: #fff !important;
+        color: #1a73e8;
+        padding: 0 10px;
+        border-radius: 5px
+    }
+
+    .form-group textarea:focus~.control-label,
+    .form-group input:valid~.control-label {
+        top: -14px !important;
+        background: #fff !important;
+        color: #1a73e8;
+        padding: 0 10px;
+        border-radius: 5px
+    }
+
+
+
+    /* Main Focus */
+    .form-group .control-label {
+
+        position: absolute;
+        top: 10px;
+        pointer-events: none;
+        padding-right: 0.125rem;
+        z-index: 1;
+        color: #b3b3b3;
+        font-size: 14px;
+        font-weight: normal;
+        -webkit-transition: all 0.28s ease;
+        transition: all 0.28s ease;
+        right: 15px;
+
+    }
+
+    .form-group input {
+        height: 40px;
+        border: 1px solid #ccc;
+        padding: 13px 15px;
+        border-radius: 5px;
+    }
+    .form-group input:disabled {
+        background-color: rgb(241, 241, 241);
+        opacity: 1;
+    }
+
+    .form-group textarea {
+
+        border: 1px solid #ccc;
+        padding: 13px 15px;
+        height: 80px;
+        border-radius: 5px;
+    }
+
+    .form-control:focus {
+        color: #495057;
+        background-color: #fff;
+        border-color: #1a73e8 !important;
+        outline: 0;
+        box-shadow: none;
+    }
+
+    .form-group input:focus {
+        height: 40px;
+        border: 1px solid #1a73e8;
+        padding: 13px 15px;
+    }
+
+
+    .New_form_sec {
+        padding: 30px 40px 36px;
+        border: 1px solid #dadce0;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .New_form_sec2 {
+        border: none;
+        padding: 30px 40px 36px;
+    }
+
+    .New_form_sec .btn {
+        border-radius: 5px;
+        min-width: 25%;
+        letter-spacing: 0.8px;
+        font-weight: bold;
+        background: #1a73e8;
+        color: #fff
+    }
+
+    .New_form_sec .contact-page-title22 {
+        text-align: center
+    }
+
+    .New_form_sec .contact-page-title22 {
+        text-align: center;
+        position: relative !important;
+        background: #fff;
+        text-align: right;
+    }
+
+
+    form-group textarea:valid~.control-label,
+    .form-group textarea.form-file~.control-label,
+    .form-group textarea.has-value~.control-label {
+        font-size: 0.8rem;
+        color: gray;
+        top: -1rem;
+        right: 0;
+    }
 </style>
 <link rel='stylesheet' href='https://sachinchoolur.github.io/lightslider/dist/css/lightslider.css'>
 <div class="container-fluid mt-2 mb-3">
+    {% if errmes == 1 %}
+    <div class="alert alert-danger alert-dismissible">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        <strong>שגיאה</strong> ההודעה לא נשלחה, נא לנסות בשנית
+      </div>
+    {% endif %}
+    {% if errmes == 2 %}
+    <div class="alert alert-success alert-dismissible">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        ההודעה נשלחה בהצלחה
+      </div>
+    {% endif %}
     <div class="row no-gutters">
         <div class="col-md-5 pr-2">
             <div class="card">
@@ -266,14 +487,60 @@
                     {% if apr.gender and apr.gender == 2%}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">מיועד ל: בנות בלבד</span> </div>{% endif %}
                     {% if apr.gender and apr.gender == 3%}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">מיועד ל: בנים ובנות</span> </div>{% endif %}
                 </div>
-                <div class="buttons"> <button class="btn btn-warning btn-long buy">צור קשר</button>
+                <div class="buttons"> <button class="btn btn-warning btn-long buy" data-toggle="modal" data-target="#exampleModal">צור קשר</button>
             </div>
         </div>
     </div>
 </div>
+<!-- Modal -->
+<div dir="rtl" class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form class="modal-body" method="POST" action="{% url 'send_email_to_publisher' %}{{apr.id}}">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <input  maxlength="200" class="inputof" name="mes_from" type="text" required >
+                        <label for="input" class="control-label">שם</label>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <input  maxlength="200" class="inputof" required
+                            name="mes_contact" type="text" >
+                        <label for="input" class="control-label">טלפון או מייל ליצירת קשר</label>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <textarea name="mes_content" required> </textarea>
+                        
+                        <label for="textarea" class="control-label">תוכן ההודעה</label>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="">
+                        <input class="btn btn-primary col-sm-12" type="submit" value="שלח">
+                    </div>
+                </div>
+
+            </div>
+    </div>
+    </form>
+      </div>
+    </div>
+  </div>
 <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js'></script>
 <script src='https://sachinchoolur.github.io/lightslider/dist/js/lightslider.js'></script>
-<script> $('#lightSlider').lightSlider({ gallery: true, item: 1, loop: true, slideMargin: 0, thumbItem: 9 });
+<script> 
+$('#lightSlider').lightSlider({ gallery: true, item: 1, loop: true, slideMargin: 0, thumbItem: 9 });
 </script>
 
 <script>

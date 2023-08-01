@@ -19,7 +19,11 @@ class Apartment(models.Model):
     title = models.CharField(max_length=24, default='')
 
     def __str__(self):
-        return self.city + ', ' + self.street+ ', ' + str(self.publisher)
+        if self.street: return self.city + ', ' + self.street
+        return self.city
+    
+    def get_url(self):
+        return f'http://127.0.0.1:8000/apr/{self.id}'
     
     def short_title(self):
       my_title = self.details
