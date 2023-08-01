@@ -168,7 +168,7 @@ def register_page(request):
             user1 = authenticate(request, username = username, password = password)
             if user1:
                 login(request, user1)
-                return redirect('dashboard')
+                return redirect('index')
         elif repassword != password: msg.append('the passwords not match')
         if not username or not password or not firstname or not firstname or not email or not lastname:
             msg.append('one of the fields is blank!')
@@ -176,6 +176,7 @@ def register_page(request):
         return render(request, 'login.html', {'username2': username, 'email': email, 'lastname':lastname, 'firstname':firstname, 'reg': 'reg', 'msg':msg})
 
 def login_page(request):
+    # send_email('amitm747@gmail.com', 'היי', "מה נשמע?")
     if request.user.is_authenticated:
         return redirect('index')
     elif request.method == 'POST':
@@ -184,7 +185,7 @@ def login_page(request):
         user = authenticate(request, username = username, password = password)
         if user:
             login(request, user)
-            return redirect('dashboard')
+            return redirect('index')
         else:
             messages.error(request, f"log")
         return render(request, 'login.html', {'username1': username, 'log': 'log'})
@@ -194,10 +195,19 @@ def logout_page(request):
     logout(request)
     return redirect('index')
 
+from django.core.mail import EmailMessage, get_connection
+from django.conf import settings
 
-
-
-@login_required
-def dashboard(request):
-    return render(request, 'dashboard.html')
-
+def send_email(toemail, mysubject, mymessage):  
+    with get_connection(  
+        host=settings.EMAIL_HOST, 
+    port=settings.EMAIL_PORT,  
+    username=settings.EMAIL_HOST_USER, 
+    password=settings.EMAIL_HOST_PASSWORD, 
+    use_tls=settings.EMAIL_USE_TLS  
+    ) as connection:  
+        subject = mysubject 
+        email_from = settings.EMAIL_HOST_USER  
+        recipient_list = [toemail, ]  
+        message = mymessage 
+        EmailMessage(subject, message, email_from, recipient_list, connection=connection).send()  
