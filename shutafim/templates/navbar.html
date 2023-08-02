@@ -9,11 +9,6 @@
             <a class="navbar-brand" href="/">Logo</a>
         </div>
         <div class="collapse navbar-collapse" id="myNavbar">
-            <ul id="navbar" class="nav navbar-nav">
-                <!-- {% for item in cat %}
-                <li id="idcat_{{item.id}}"><a href="/{{item.cat}}">{{item.cat}}</a></li>
-                {% endfor %} -->
-            </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li id="idcat_0"><a href="{% url 'index' %}"><span class=""></span> חיפוש דירות</a></li>
                 {% if user.is_authenticated %}
@@ -28,6 +23,3 @@
         </div>
     </div>
 </nav>
-<script>
-    // document.getElementById("idcat_{{pg.id}}").classList.add("active");
-</script>

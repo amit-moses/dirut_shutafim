@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'shutafim'
+    'shutafim',
+    'captcha'
 ]
 
 MIDDLEWARE = [
@@ -141,3 +142,6 @@ EMAIL_HOST_USER = 'dirotshutafim@gmail.com'
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_KEY')
 DEFAULT_FROM_EMAIL = 'dirotshutafim@gmail.com'
 
+SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error'] #RECAPTCHA_TEST
+RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA1')
+RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA2')

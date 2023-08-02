@@ -8,7 +8,13 @@ from django.http import JsonResponse
 from shutafim.models import Apartment, ImageData
 from django.core.mail import EmailMessage, get_connection
 from django.conf import settings
-
+from django import forms
+from captcha.fields import ReCaptchaField
+from captcha.widgets import ReCaptchaV2Checkbox
+  
+  
+class Recaptcha(forms.Form):
+    captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
 
 def index(request):
     # max_id = request.GET.get('max_id')
@@ -16,16 +22,15 @@ def index(request):
     street = request.GET.get('street_choice')
     rent_price_from = request.GET.get('rent_price_from')
     rent_price_to = request.GET.get('rent_price_to')
-    print('s3',rent_price_from, rent_price_to)
     gender = request.GET.get('gender')
     search_key = request.GET.get('search_key')
-    print(gender, 'mmmm')
     floor = request.GET.get('floor')
     partners = request.GET.get('partners')
     entry_month = request.GET.get('entry_month')
+    kosher = request.GET.get('kosher')
     search_value = {'city': city if city else '', 'street': street if street else '', 'rent_price_from': rent_price_from, 
                     'rent_price_to': rent_price_to, 'gender':gender, 'search_key':search_key if search_key else '', 'entry_month':entry_month,
-                    'floor':floor, 'partners':partners, }
+                    'floor':floor, 'partners':partners, 'kosher': kosher}
     return render(request, 'index.html', {'apr':search_value})
 
 @login_required
@@ -40,6 +45,8 @@ def api(request, apr_id = -1):
         rent_price = request.POST.get('rent')
         title = request.POST.get('title')
         details = request.POST.get('details')
+        kosher = request.POST.get('kosher')
+        agree_mail = request.POST.get('agree_mail')
         images, urlsexist = [], []
         for k in range(0,6):
             img = request.FILES.get('image'+str(k))
@@ -47,9 +54,8 @@ def api(request, apr_id = -1):
 
         if apr_id == -1:
             newApr = Apartment(publisher=request.user, city = city, street=street, rent_price= rent_price, floor = floor, partners= partners, 
-                                gender = gender, entry_date = entry_date, details=details, title = title)
+                                gender = gender, entry_date = entry_date, details=details, title = title, kosher = kosher, agree_mail = bool(agree_mail))
             newApr.save()
-            print('1111110',images)
             newApr.uploadImages(images)
         elif apr_id:
             apr = Apartment.objects.filter(pk = apr_id).all()
@@ -65,6 +71,8 @@ def api(request, apr_id = -1):
                     apr.entry_date = entry_date
                     apr.details=details
                     apr. title = title
+                    apr.kosher = kosher
+                    apr.agree_mail = bool(agree_mail)
                     apr.save()
                     for k in range(0,6):
                         trp = request.POST.get(f'imagenochange{k}')
@@ -104,7 +112,7 @@ def single_page_view(request, apr_id):
     apr = Apartment.objects.filter(pk = apr_id).all()
     if apr: 
         apr = apr[0]
-    context = {'apr': apr}
+    context = {'apr': apr, 'form': Recaptcha()}
     return render(request, 'singlepage.html', context)
 
 @login_required
@@ -116,7 +124,6 @@ def search(request):
     max_id = request.GET.get('max_id')
     city = request.GET.get('city_choice')
     street = request.GET.get('street_choice')
-    print(street, '------------11')
     rent_price_from = request.GET.get('rent_price_from')
     rent_price_to = request.GET.get('rent_price_to')
     gender = request.GET.get('gender')
@@ -124,22 +131,20 @@ def search(request):
     entry_month = request.GET.get('entry_month')
     floor = request.GET.get('floor')
     partners = request.GET.get('partners')
-
+    kosher = request.GET.get('kosher')
     query = Apartment.objects
     if max_id and max_id != '0': query = query.filter(id__lt = max_id)
-    print(rent_price_from, rent_price_to)
     if rent_price_from: query = query.filter(rent_price__gte = int(rent_price_from))
     if rent_price_to: query = query.filter(rent_price__lte  = int(rent_price_to))
-    print(query.count(), '--11--')
     if floor: query = query.filter(floor = floor)
     if partners: query = query.filter(partners = partners)
     if gender: 
-        print(gender, 'kkkkk')
         if int(gender) != 3: query = query.filter(gender  = int(gender))
+    if kosher:
+        if int(kosher) != 4: query = query.filter(kosher  = int(kosher))
     if entry_month: query = query.filter(entry_date__month = int(entry_month.split('-')[1])) 
     if city: 
         query = query.filter(city__iexact  = city) 
-        print(street, 'llllllp')
         if street: 
             query = query.filter(street__iexact = street)
     if search_key:
@@ -165,7 +170,6 @@ def register_page(request):
                 user.save()
             except Exception as e:
                 msg.append(e)
-                print(e)
             user1 = authenticate(request, username = username, password = password)
             if user1:
                 login(request, user1)
@@ -218,18 +222,23 @@ def send_email(toemail, mysubject, mymessage):
         EmailMessage(subject, message, email_from, recipient_list, connection=connection).send()  
     
 def send_email_to_publisher(request, apr_id = 0):
+    form = Recaptcha(request.POST)
     mes_content = request.POST.get('mes_content')
     mes_from = request.POST.get('mes_from')
     mes_contact = request.POST.get('mes_contact')
-    apr = Apartment.objects.filter(pk = apr_id).all()
     errmes = 1
+    apr = Apartment.objects.filter(pk = apr_id).all()
     if apr and apr_id: 
         apr = apr[0]
-        user_to = apr.publisher
-        mail = f'{user_to.first_name} שלום, \n הושארה לך הודעה בנוגע לדירה שפרסמת באתר \n הדירה: {str(apr)}, {apr.get_url()}\n מאת: {mes_from}\n תוכן ההודעה: {mes_content} \n פרטים ליצירת קשר: {mes_contact} \n \n '
-        print(mail)
-        send_email(user_to.email, f'הודעה חדשה מ{mes_from} בקשר לדירה', mail)
-        errmes = 2
+    for key, error in list(form.errors.items()):
+        if key == 'captcha' and error[0] == 'This field is required.':
+            errmes = 3
+    if errmes != 3 and request.method == 'POST' and apr:
+        if apr.agree_mail:
+            user_to = apr.publisher
+            mail = f'{user_to.first_name} שלום, \n הושארה לך הודעה בנוגע לדירה שפרסמת באתר \n הדירה: {str(apr)}, {apr.get_url()}\n מאת: {mes_from}\n תוכן ההודעה: {mes_content} \n פרטים ליצירת קשר: {mes_contact} \n \n '
+            send_email(user_to.email, f'הודעה חדשה מ{mes_from} בקשר לדירה', mail)
+            errmes = 2
     
-    context = {'apr': apr, 'errmes': errmes}
+    context = {'apr': apr, 'errmes': errmes, 'form': Recaptcha(), 'my_name_err': mes_from, 'my_con_err':mes_contact, 'my_mes_err':mes_content}
     return render(request, 'singlepage.html', context)

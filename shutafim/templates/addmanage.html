@@ -167,7 +167,7 @@
 
 
     .New_form_sec {
-        padding: 30px 40px 36px;
+        padding: 20px 30px 20px;
         border: 1px solid #dadce0;
         border-radius: 8px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
@@ -224,7 +224,7 @@
         display: block;
         border-radius: 0px;
         box-shadow: 0px 4px 6px 2px rgba(0, 0, 0, 0.2);
-        margin-top: -5px;
+        margin-top: -10px;
     }
 
     .imgUp {
@@ -261,6 +261,10 @@
         background-color: rgb(241, 241, 241);
         opacity: 1;
     }
+
+    .images_select{
+        margin-top: -10px;
+    }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
 <div dir="rtl" class="container">
@@ -268,19 +272,16 @@
         <form method="POST" action="{% url 'api' %}{% if apr %}{{apr.id}}{% endif %}" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="row">
-                <div class="col-sm-5">
-                    <div class="form-field form-group" id="city-selection">
-                        <input {% if apr %}value="{{apr.city}}" {% endif %} class="inputof" type="text"
-                            list="cities-data" id="city_choice" name="city_choice" onchange="make_city()" required />
-                        <datalist id="cities-data">
-                            <option value="">טוען רשימת ערים...</option>
-                        </datalist>
-                        <label for="input" class="control-label">עיר</label>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <input {% if apr %}value="{{apr.floor}}" {% endif %} class="inputof" min="0" max="100"
+                            name="floor" type="number" required>
+                        <label for="input" class="control-label">קומה</label>
                     </div>
                 </div>
                 <div class="col-sm-5">
                     <div class="form-field form-group" id="street-selection">
-                        <input {% if apr %}value="{{apr.street}}" {% endif %} class="inputof" type="text"
+                        <input autocomplete="off" {% if apr %}value="{{apr.street}}" {% endif %} class="inputof" type="text"
                             list="streets-data" id="street_choice" name="street_choice" required {% if not apr.street %} disabled {% endif %} />
                         <datalist id="streets-data">
                             <option value="">
@@ -288,11 +289,14 @@
                         <label for="input" class="control-label">רחוב</label>
                     </div>
                 </div>
-                <div class="col-sm-2">
-                    <div class="form-group">
-                        <input {% if apr %}value="{{apr.floor}}" {% endif %} class="inputof" min="0" max="100"
-                            name="floor" type="number" required>
-                        <label for="input" class="control-label">קומה</label>
+                <div class="col-sm-5">
+                    <div class="form-field form-group" id="city-selection">
+                        <input autocomplete="off" {% if apr %}value="{{apr.city}}" {% endif %} class="inputof" type="text"
+                            list="cities-data" id="city_choice" name="city_choice" onchange="make_city()" required />
+                        <datalist id="cities-data">
+                            <option value="">טוען רשימת ערים...</option>
+                        </datalist>
+                        <label for="input" class="control-label">עיר</label>
                     </div>
                 </div>
                 <div class="col-sm-3">
@@ -303,21 +307,25 @@
                     </div>
                 </div>
 
-                <div class="col-sm-3">
+                <div class="col-sm-2">
                     <div class="form-group">
-                        <input {% if apr %}value="{{apr.partners}}" {% endif %} name="partners" type="number" required>
+                        <input {% if apr %}value="{{apr.partners}}" {% endif %} name="partners" min="0" type="number" required>
                         <label for="input" class="control-label">מספר שותפים בדירה</label>
                     </div>
                 </div>
-
                 <div class="col-sm-3">
                     <div class="form-group">
-                        <input {% if rdate %}value="{{rdate}}" {% endif %} name="entey_date" type="date" required>
-                        <label for="input" class="control-label">תאריך כניסה</label>
+                        <select style="height: 40px;" class="form-control" name="kosher"
+                            aria-label="Default select example">
+                            <option id="kosher_0" value="0">אין כשרות, אין שבת</option>
+                            <option id="kosher_1" value="1">יש כשרות, שומרי שבת</option>
+                            <option id="kosher_2" value="2">יש כשרות, אין שבת</option>
+                            <option id="kosher_3" value="3">אין כשרות, שומרי שבת</option>
+                        </select>
+                        <label for="input" class="control-label">כשרות ושבת</label>
                     </div>
                 </div>
-
-                <div class="col-sm-3">
+                <div class="col-sm-2">
                     <div class="form-group">
                         <select style="height: 40px;" class="form-control" name="gender"
                             aria-label="Default select example">
@@ -326,6 +334,12 @@
                             <option id="check_2" value="2">בנות בלבד</option>
                         </select>
                         <label for="input" class="control-label">מין השותפ.ה</label>
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <input {% if rdate %}value="{{rdate}}" {% endif %} name="entey_date" type="date" required>
+                        <label for="input" class="control-label">תאריך כניסה</label>
                     </div>
                 </div>
                 <div class="col-sm-12">
@@ -342,7 +356,7 @@
                         <label for="textarea" class="control-label">תוכן המודעה</label><i class="bar"></i>
                     </div>
                     
-                    <div style="align-items: center;" dir="ltr"">
+                    <div class="images_select" style="align-items: center;" dir="ltr"">
                         <br><div class=" container">
                         <div style="width: 95%;" class="row">
                             {% if apr %}
@@ -362,9 +376,12 @@
                             <i id="btnAdd" class="fa fa-plus imgAdd"></i>
                         </div><!-- row -->
                     </div><!-- container -->
-
-
                 </div>
+                <div class="form-check">
+                    <label class="form-check-label" for="flexCheckDefault"><input name="agree_mail" class="form-check-inline" type="checkbox" {%if apr.agree_mail%}checked{% endif %} id="flexCheckDefault">
+                    כפתור יצירת קשר במודעה, מתעניינים בדירה יוכלו לשלוח לך מייל דרך הטופס אך לא ייצפו במייל שלך. אישור זה מהווה הסכמה לקבלת מיילים ממתעניינים דרך האתר. אם בחרת שלא, מומלץ לשים פרטים בתוכן המודעה
+                    </label>
+                  </div>
                 <div class="">
                     <input type="submit" class="btn theme-btn" value="פרסום מודעה">
                 </div>
@@ -524,6 +541,6 @@
         });
 
         document.getElementById("check_{{apr.gender}}").selected = "true";
-
+        document.getElementById("kosher_{{apr.kosher}}").selected = "true";
     </script>
     {% endblock %}

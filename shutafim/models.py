@@ -17,6 +17,8 @@ class Apartment(models.Model):
     entry_date = models.DateField(default=datetime.date.today)#
     details = models.CharField(max_length=500, default='')
     title = models.CharField(max_length=24, default='')
+    kosher = models.IntegerField(default=0)
+    agree_mail = models.BooleanField(default=True)
 
     def __str__(self):
         if self.street: return self.city + ', ' + self.street
@@ -26,7 +28,7 @@ class Apartment(models.Model):
         return f'http://127.0.0.1:8000/apr/{self.id}'
     
     def short_title(self):
-      my_title = self.details
+      my_title = self.title
       if len(my_title)> 22: my_title = my_title[:22]+'...'
       elif not my_title: my_title = '  '
       return my_title
@@ -36,7 +38,9 @@ class Apartment(models.Model):
       if len(my_content)> 25: my_content = my_content[:25]+'...'
       elif not my_content: my_content = '  '
       return my_content
-      
+    
+    def get_date_format(self):
+        return self.entry_date.strftime('%d/%m/%Y')
     def toJSON(self):
       return {"id": self.id, 
               "city": self.city , 
@@ -48,6 +52,7 @@ class Apartment(models.Model):
               "entry_date": self.entry_date.strftime('%Y-%m-%d'),
               "details": self.short_details(),
               "title": self.short_title(),
+              "kosher": self.kosher,
               "image": self.imagedata_set.all()[0].myurl}
 
     
@@ -56,9 +61,7 @@ class Apartment(models.Model):
         oldimg_lst = [oldimg.myurl for oldimg in self.imagedata_set.all()]
         for oldimg in oldimg_lst:
             if oldimg not in existimg:
-                print('----------------------00000ros', oldimg)
                 path = oldimg.replace('https://storage.googleapis.com/diro-ac902.appspot.com/','')
-                print(path)
                 blob = bucket.blob(path)
                 blob.delete()
                 self.imagedata_set.filter(myurl__icontains = path).delete()
@@ -107,7 +110,3 @@ class ImageData(models.Model):
     
     def __str__(self):
         return self.myurl
-    
-    
-
-    

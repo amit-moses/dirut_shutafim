@@ -438,12 +438,6 @@
 </style>
 <link rel='stylesheet' href='https://sachinchoolur.github.io/lightslider/dist/css/lightslider.css'>
 <div class="container-fluid mt-2 mb-3">
-    {% if errmes == 1 %}
-    <div class="alert alert-danger alert-dismissible">
-        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-        <strong>שגיאה</strong> ההודעה לא נשלחה, נא לנסות בשנית
-      </div>
-    {% endif %}
     {% if errmes == 2 %}
     <div class="alert alert-success alert-dismissible">
         <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
@@ -481,17 +475,23 @@
                     {% if apr.rent_price %}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">שכר דירה חודשי: {{apr.rent_price}}</span> </div>{% endif %}
                     {% if apr.partners %}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">מספר שותפים: {{apr.partners}}</span> </div>{% endif %}
                     {% if apr.floor %}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">קומה: {{apr.floor}}</span> </div>{% endif %}
-                    {% if apr.entry_date %}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">תאריך כניסה: {{apr.entry_date}}</span> </div>{% endif %}
+                    {% if apr.entry_date %}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">תאריך כניסה: {{apr.get_date_format}}</span> </div>{% endif %}
 
-                    {% if apr.gender and apr.gender == 1%}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">מיועד ל: בנים בלבד</span> </div>{% endif %}
-                    {% if apr.gender and apr.gender == 2%}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">מיועד ל: בנות בלבד</span> </div>{% endif %}
-                    {% if apr.gender and apr.gender == 3%}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">מיועד ל: בנים ובנות</span> </div>{% endif %}
+                    {% if apr.gender == 1%}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">מיועד ל: בנים בלבד</span> </div>{% endif %}
+                    {% if apr.gender == 2%}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">מיועד ל: בנות בלבד</span> </div>{% endif %}
+                    {% if apr.gender == 0%}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">מיועד ל: בנים ובנות</span> </div>{% endif %}
+
+                    {% if apr.kosher == 0%}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">כשרות: אין כשרות, אין שבת</span> </div>{% endif %}
+                    {% if apr.kosher == 1%}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">כשרות: יש כשרות, שומרי שבת</span> </div>{% endif %}
+                    {% if apr.kosher == 2%}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">כשרות: יש כשרות, אין שבת</span> </div>{% endif %}
+                    {% if apr.kosher == 3%}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">כשרות: אין כשרות, שומרי שבת</span> </div>{% endif %}
+                    
                 </div>
-                <div class="buttons"> <button class="btn btn-warning btn-long buy" data-toggle="modal" data-target="#exampleModal">צור קשר</button>
-            </div>
+                {% if apr.agree_mail %} <div class="buttons"> <button id="btn_open" class="btn btn-warning btn-long buy" data-toggle="modal" data-target="#exampleModal">צור קשר</button></div>{% endif %}
         </div>
     </div>
 </div>
+{% if apr.agree_mail %}
 <!-- Modal -->
 <div dir="rtl" class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -503,27 +503,42 @@
           </button>
         </div>
         <form class="modal-body" method="POST" action="{% url 'send_email_to_publisher' %}{{apr.id}}">
+            {% if errmes == 1 %}
+    <div class="alert alert-danger alert-dismissible">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        <strong>שגיאה</strong> ההודעה לא נשלחה, נא לנסות בשנית
+      </div>
+    {% endif %}
+    {% if errmes == 3 %}
+    <div class="alert alert-danger alert-dismissible">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        <strong>שגיאה</strong> נא למלא את תיבת האימות
+      </div>
+    {% endif %}
             {% csrf_token %}
             <div class="row">
                 <div class="col-sm-12">
                     <div class="form-group">
-                        <input  maxlength="200" class="inputof" name="mes_from" type="text" required >
+                        <input {% if errmes == 3 %}value="{{my_name_err}}"{% endif %}  maxlength="200" class="inputof" name="mes_from" type="text" required >
                         <label for="input" class="control-label">שם</label>
                     </div>
                 </div>
                 <div class="col-sm-12">
                     <div class="form-group">
-                        <input  maxlength="200" class="inputof" required
+                        <input {% if errmes == 3 %}value="{{my_con_err}}"{% endif %} maxlength="200" class="inputof" required
                             name="mes_contact" type="text" >
                         <label for="input" class="control-label">טלפון או מייל ליצירת קשר</label>
                     </div>
                 </div>
                 <div class="col-sm-12">
                     <div class="form-group">
-                        <textarea name="mes_content" required> </textarea>
+                        <textarea name="mes_content" required>{% if errmes == 3 %}{{my_mes_err}}{% endif %}</textarea>
                         
                         <label for="textarea" class="control-label">תוכן ההודעה</label>
                     </div>
+                </div>
+                <div>
+                    {{ form.as_p }}
                 </div>
                 <div class="col-sm-12">
                     <div class="">
@@ -537,6 +552,7 @@
       </div>
     </div>
   </div>
+  {% endif %}
 <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js'></script>
 <script src='https://sachinchoolur.github.io/lightslider/dist/js/lightslider.js'></script>
 <script> 
@@ -544,6 +560,7 @@ $('#lightSlider').lightSlider({ gallery: true, item: 1, loop: true, slideMargin:
 </script>
 
 <script>
+    {% if errmes == 3 or errmes == 1 %}document.getElementById('btn_open').click(){% endif %}
     drk = document.getElementById(`idcat_0`)
     if (drk) drk.classList.add("active")
 </script>
