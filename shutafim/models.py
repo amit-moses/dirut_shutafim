@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 import datetime
 from firebase_admin import credentials,initialize_app, storage
+from django.conf import settings
 import random
 
 
@@ -25,7 +26,7 @@ class Apartment(models.Model):
         return self.city
     
     def get_url(self):
-        return f'http://127.0.0.1:8000/apr/{self.id}'
+        return f'{settings.MY_URL}apr/{self.id}'
     
     def short_title(self):
       my_title = self.title

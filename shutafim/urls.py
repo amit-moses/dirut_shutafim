@@ -22,7 +22,9 @@ urlpatterns = [
     path("api/<int:apr_id>", views.api, name="api"),
     path("send_mes/", views.send_email_to_publisher, name="send_email_to_publisher"),
     path("send_mes/<apr_id>", views.send_email_to_publisher, name="send_email_to_publisher"),
-    
+    path("vaild/", views.vaild_account, name="vaild_account"),
+    path("vaild/<user_id>", views.vaild_account, name="vaild_account"),
+    path("vaild/<user_id>/<token>", views.vaild_account, name="vaild_account"),
     path("rest_password/", auth_views.PasswordResetView.as_view(template_name = 'reset/password_reset.html', html_email_template_name='reset/password_reset_email.html'), name='reset_password'),
     path("rest_password_sent/", auth_views.PasswordChangeDoneView.as_view(), name='password_reset_done'),
     path("rest/<uidb64>/<token>/", auth_views.PasswordResetConfirmView.as_view(template_name = 'reset/password_confirm.html'), name='password_reset_confirm'),

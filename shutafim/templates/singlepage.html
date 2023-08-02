@@ -476,11 +476,9 @@
                     {% if apr.partners %}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">מספר שותפים: {{apr.partners}}</span> </div>{% endif %}
                     {% if apr.floor %}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">קומה: {{apr.floor}}</span> </div>{% endif %}
                     {% if apr.entry_date %}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">תאריך כניסה: {{apr.get_date_format}}</span> </div>{% endif %}
-
                     {% if apr.gender == 1%}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">מיועד ל: בנים בלבד</span> </div>{% endif %}
                     {% if apr.gender == 2%}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">מיועד ל: בנות בלבד</span> </div>{% endif %}
                     {% if apr.gender == 0%}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">מיועד ל: בנים ובנות</span> </div>{% endif %}
-
                     {% if apr.kosher == 0%}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">כשרות: אין כשרות, אין שבת</span> </div>{% endif %}
                     {% if apr.kosher == 1%}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">כשרות: יש כשרות, שומרי שבת</span> </div>{% endif %}
                     {% if apr.kosher == 2%}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">כשרות: יש כשרות, אין שבת</span> </div>{% endif %}

@@ -99,11 +99,6 @@
 	border-color: #1CA347;
 }
 </style>
-{% if user.is_authenticated %}
-<!-- show this if user is logged in-->
-<h3>Hello {{ user.username }}</h3>
-{% else %}
-
 <div class="container">
     <div class="row">
         <div class="col-md-6 col-md-offset-3">
@@ -126,7 +121,7 @@
                                 {% if log %}
                                 <div class="alert alert-danger alert-dismissible">
                                     <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                                    <strong>שגיאה</strong> כנראה הזנת שם משתמש או סיסמא לא נכונים
+                                    <strong>שגיאה</strong> {{log}}
                                   </div>
                                 {% endif %}
                                 {% if reset %}
@@ -167,9 +162,11 @@
                                 {% if reg %}
                                 <div class="alert alert-danger alert-dismissible">
                                     <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                                    <strong>Error register!</strong>
+                                    <strong>שגיאת הרשמה</strong>
                                     {% if msg %}
-                                    {{msg}}
+                                    {% for tx in msg %}
+                                    <br>{{tx}}
+                                    {% endfor %}
                                     {% endif%}
                                   </div>
                                 {% endif %}
@@ -182,9 +179,6 @@
                                 </div>
                                 <div class="form-group">
                                     <input type="text" {% if firstname %}value={{ firstname }}{% endif %} name="firstname" id="firstname" tabindex="1" class="form-control" placeholder="First Name" value="">
-                                </div>
-                                <div class="form-group">
-                                    <input type="text" {% if lastname %}value={{ lastname }}{% endif %} name="lastname" id="lastname" tabindex="1" class="form-control" placeholder="Last Name" value="">
                                 </div>
                                 <div class="form-group">
                                     <input type="password" name="password" id="password" tabindex="2" class="form-control" placeholder="Password">
@@ -237,7 +231,6 @@ $('#register-form-link').addClass('active');
 {% endif %}
 </script>
 
-{% endif %}
 {% endblock %}
 
 

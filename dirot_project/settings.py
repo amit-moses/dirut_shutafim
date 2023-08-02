@@ -145,3 +145,5 @@ DEFAULT_FROM_EMAIL = 'dirotshutafim@gmail.com'
 SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error'] #RECAPTCHA_TEST
 RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA1')
 RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA2')
+
+MY_URL = 'http://127.0.0.1:8000/'

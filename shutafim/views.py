@@ -11,10 +11,28 @@ from django.conf import settings
 from django import forms
 from captcha.fields import ReCaptchaField
 from captcha.widgets import ReCaptchaV2Checkbox
-  
+import random
   
 class Recaptcha(forms.Form):
     captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
+    
+def send_email(toemail, mysubject, mymessage):  
+    with get_connection(  
+        host=settings.EMAIL_HOST, 
+    port=settings.EMAIL_PORT,  
+    username=settings.EMAIL_HOST_USER, 
+    password=settings.EMAIL_HOST_PASSWORD, 
+    use_tls=settings.EMAIL_USE_TLS  
+    ) as connection:  
+        subject = mysubject 
+        email_from = settings.EMAIL_HOST_USER  
+        recipient_list = [toemail, ]  
+        message = mymessage 
+        EmailMessage(subject, message, email_from, recipient_list, connection=connection).send() 
+
+def send_vaildation_email(email, name, user_id, token):
+    mes = f'שלום {name}, \n תודה שנרשמת לאתר! רצינו לוודא שזה באמת המייל שלך מאחר ותוכל להגדיר שאתה מעוניין לקבל הודעות ממשתמשים שיתעניינו בדירות שתפרסם באתר.\n על מנת להשלים את תהליך ההרשמה יש ללחוץ על הקישור המופיע במייל זה. לאחר לחיצה עליו, חשבונך יופעל.\n הקישור: {settings.MY_URL}vaild/{user_id}/{token} \n תודה!'
+    send_email(email, 'אימות כתובת המייל' ,mes)
 
 def index(request):
     # max_id = request.GET.get('max_id')
@@ -35,7 +53,10 @@ def index(request):
 
 @login_required
 def api(request, apr_id = -1):
-    if request.method == 'POST':
+    user = request.user
+    if user: 
+        if user.last_name != '1': return render(request, 'login.html', {'log': 'נא לאמת את כתובת המייל באמצעות מייל לאימות סיסמא שנשלח אליך בעת ההרשמה'})
+    elif request.method == 'POST':
         city = request.POST.get('city_choice')
         street = request.POST.get('street_choice')
         floor = request.POST.get('floor')
@@ -96,17 +117,19 @@ def delete_apr(request, apr_id=0):
 
     return redirect('myads')
 
-    
-
 @login_required
 def newadd(request, apr_id = -1):
-    if request.method == 'GET':
-        if apr_id >0:
-            apr = Apartment.objects.filter(pk = apr_id).all()
-            if apr: 
-                apr = apr[0]
-                return render(request, 'addmanage.html', {'apr': apr, 'rdate':apr.entry_date.strftime('%Y-%m-%d')})
-        return render(request, 'addmanage.html', {'apr': False, 'date_d': False})
+    user = request.user
+    if user.is_authenticated: 
+        if user.last_name != '1': 
+            return render(request, 'login.html', {'log': 'נא לאמת את כתובת המייל באמצעות מייל לאימות סיסמא שנשלח אליך בעת ההרשמה'})
+        elif request.method == 'GET':
+            if apr_id >0:
+                apr = Apartment.objects.filter(pk = apr_id).all()
+                if apr: 
+                    apr = apr[0]
+                    return render(request, 'addmanage.html', {'apr': apr, 'rdate':apr.entry_date.strftime('%Y-%m-%d')})
+            return render(request, 'addmanage.html', {'apr': False, 'date_d': False})
 
 def single_page_view(request, apr_id):
     apr = Apartment.objects.filter(pk = apr_id).all()
@@ -117,6 +140,9 @@ def single_page_view(request, apr_id):
 
 @login_required
 def myads(request):
+    user = request.user
+    if user: 
+        if user.last_name != '1': return render(request, 'login.html', {'log': 'נא לאמת את כתובת המייל באמצעות מייל לאימות סיסמא שנשלח אליך בעת ההרשמה'})
     context = {'apartments': Apartment.objects.filter(publisher = request.user.id).all()}
     return render(request, 'myads.html', context)
 
@@ -151,9 +177,6 @@ def search(request):
         query = query.filter(details__icontains = search_key) | query.filter(title__icontains = search_key)
     
     return JsonResponse([k.toJSON() for k in query.order_by('-id')[:12]], safe=False)
-    
-    
-    
 
 def register_page(request):
     if request.method == 'POST':
@@ -161,29 +184,38 @@ def register_page(request):
         password = request.POST.get('password')
         repassword = request.POST.get('repassword')
         firstname = request.POST.get('firstname')
-        lastname = request.POST.get('lastname')
         email = request.POST.get('email')
         msg = []
-        if repassword == password and password and username and email and firstname and lastname:
+        if User.objects.filter(email = email).all(): msg.append('מייל זה נמצא בשימוש')
+        elif repassword == password and password and username and email and firstname:
             try:
-                user = User.objects.create_user(username=username, email=email, first_name = firstname, last_name = lastname, password=password)
+                options = 'Aa5B1b2C3r4Df5q6E4o7u28F9Q1mRS'
+                vaildation = [options[random.randint(0, len(options)-1)] for k in range(16)]
+                user = User.objects.create_user(username=username, email=email, first_name = firstname, last_name = ''.join(vaildation), password=password)
                 user.save()
             except Exception as e:
                 msg.append(e)
             user1 = authenticate(request, username = username, password = password)
             if user1:
                 login(request, user1)
-                return redirect('index')
-        elif repassword != password: msg.append('the passwords not match')
-        if not username or not password or not firstname or not firstname or not email or not lastname:
-            msg.append('one of the fields is blank!')
+                send_vaildation_email(user1.email,user1.first_name, user.id, user1.last_name)
+                return render(request, 'login.html', {'reset':'שלחנו לך מייל לאימות כתובת המייל שהזנת, מאחר שתוכל לבחור לקבל מיילים ממתעניינים בדירה נבקש לאשר שזאת כתובת המייל שלך. תודה'})
+        elif repassword != password: msg.append('הסיסמאות לא תואמות')
+        if not username or not password or not firstname or not firstname or not email:
+            msg.append('נא למלא את כל השדות')
 
-        return render(request, 'login.html', {'username2': username, 'email': email, 'lastname':lastname, 'firstname':firstname, 'reg': 'reg', 'msg':msg})
+        return render(request, 'login.html', {'username2': username, 'email': email, 'firstname':firstname, 'reg': 'reg', 'msg':msg})
 
 def login_page(request):
-    # send_email('amitm747@gmail.com', 'היי', "מה נשמע?")
-    if request.user.is_authenticated:
-        return redirect('index')
+    user = request.user
+    if user.is_authenticated: 
+        if user.last_name != '1': 
+            if request.method == 'GET': 
+                return render(request, 'login.html')
+            else: 
+                return render(request, 'login.html', {'log': 'נא לאמת את כתובת המייל באמצעות מייל לאימות סיסמא שנשלח אליך בעת ההרשמה'})
+        else: return redirect('index')
+        
     elif request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password') 
@@ -193,7 +225,7 @@ def login_page(request):
             return redirect('index')
         else:
             messages.error(request, f"log")
-        return render(request, 'login.html', {'username1': username, 'log': 'log'})
+        return render(request, 'login.html', {'username1': username, 'log': 'כנראה הזנת שם משתמש או סיסמא לא נכונים'})
     
     next = request.GET.get('next')
     if next:
@@ -207,20 +239,6 @@ def logout_page(request):
     logout(request)
     return redirect('index')
 
-def send_email(toemail, mysubject, mymessage):  
-    with get_connection(  
-        host=settings.EMAIL_HOST, 
-    port=settings.EMAIL_PORT,  
-    username=settings.EMAIL_HOST_USER, 
-    password=settings.EMAIL_HOST_PASSWORD, 
-    use_tls=settings.EMAIL_USE_TLS  
-    ) as connection:  
-        subject = mysubject 
-        email_from = settings.EMAIL_HOST_USER  
-        recipient_list = [toemail, ]  
-        message = mymessage 
-        EmailMessage(subject, message, email_from, recipient_list, connection=connection).send()  
-    
 def send_email_to_publisher(request, apr_id = 0):
     form = Recaptcha(request.POST)
     mes_content = request.POST.get('mes_content')
@@ -242,3 +260,24 @@ def send_email_to_publisher(request, apr_id = 0):
     
     context = {'apr': apr, 'errmes': errmes, 'form': Recaptcha(), 'my_name_err': mes_from, 'my_con_err':mes_contact, 'my_mes_err':mes_content}
     return render(request, 'singlepage.html', context)
+
+def vaild_account(request, user_id =0, token = None):
+    mes = None
+    if request.user: 
+        if request.user.is_authenticated and request.user.last_name == '1':
+            return render(request, 'index.html')
+    
+    if user_id and token:
+        user = User.objects.filter(pk = user_id).all()
+        if user:
+            user = user[0]
+            if user.last_name == token:
+                user.last_name = '1'
+                user.save()
+                mes = 'אימות כתובת המייל הושלמה, ניתן להתחבר כעת'
+                if request.user.is_authenticated:  return render(request, 'index.html', {'psk': 'psk'})
+            elif user.last_name == '1':
+                mes = 'נראה שכבר אישרת את כתובת המייל, ניתן להתחבר'
+            if mes: 
+                return render(request, 'login.html', {'reset': mes})
+    return render(request, 'login.html', {'log': 'שגיאה באימות החשבון'})
