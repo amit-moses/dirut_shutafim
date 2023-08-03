@@ -519,7 +519,18 @@
                         <label for="input" class="control-label">מין השותפ.ה</label>
                     </div>
                 </div>
-                <div class="col-sm-12">
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <select style="height: 40px;" class="form-control" name="type"
+                            aria-label="Default select example">
+                            <option id="type_3" value="3">הכל</option>
+                            <option id="type_0" value="0">שותף קבוע</option>
+                            <option id="type_1" value="1">סאבלט</option>
+                        </select>
+                        <label for="input" class="control-label">סוג</label>
+                    </div>
+                </div>
+                <div class="col-sm-9">
                     <div class="form-group">
                         <input {% if apr %}value="{{apr.search_key}}" {% endif %} maxlength="200" class="inputof"
                             name="search_key" type="text" >
@@ -578,7 +589,8 @@ isActive = true
                 {% if apr.search_key %} search_key: '{{apr.search_key}}', {% endif %}
                 {% if apr.entry_month %} entry_month: '{{apr.entry_month}}', {% endif %}
                 {% if apr.floor %} floor: '{{apr.floor}}', {% endif %}
-                {% if apr.partners %} partners: '{{apr.partners}}' {% endif %}
+                {% if apr.partners %} partners: '{{apr.partners}}', {% endif %}
+                {% if apr.type %} type: '{{apr.type}}' {% endif %}
             }}).then(res => {
             if(res.data.length){
                 console.log(res.data[0].image);
@@ -702,5 +714,6 @@ isActive = true
         });
         document.getElementById("check_{{apr.gender}}").selected = "true";
         document.getElementById("kosher_{{apr.kosher}}").selected = "true";
+        document.getElementById("type_{{apr.type}}").selected = "true";
 </script>
 {% endblock %}

@@ -31,7 +31,7 @@ def send_email(toemail, mysubject, mymessage):
         EmailMessage(subject, message, email_from, recipient_list, connection=connection).send() 
 
 def send_vaildation_email(email, name, user_id, token):
-    mes = f'שלום {name}, \n תודה שנרשמת לאתר! רצינו לוודא שזה באמת המייל שלך מאחר ותוכל להגדיר שאתה מעוניין לקבל הודעות ממשתמשים שיתעניינו בדירות שתפרסם באתר.\n על מנת להשלים את תהליך ההרשמה יש ללחוץ על הקישור המופיע במייל זה. לאחר לחיצה עליו, חשבונך יופעל.\n הקישור: {settings.MY_URL}vaild/{user_id}/{token} \n תודה!'
+    mes = f'שלום {name}, \n תודה שנרשמת לאתר! רצינו לוודא שזה באמת המייל שלך מאחר ותוכל להגדיר שאתה מעוניין לקבל הודעות ממשתמשים שיתעניינו בדירות שתפרסם באתר.\n על מנת להשלים את תהליך ההרשמה יש ללחוץ על הקישור המופיע במייל זה. לאחר לחיצה עליו, חשבונך יופעל.\n הקישור: \n{settings.MY_URL}vaild/{user_id}/{token} \n תודה!'
     send_email(email, 'אימות כתובת המייל' ,mes)
 
 def index(request):
@@ -46,9 +46,10 @@ def index(request):
     partners = request.GET.get('partners')
     entry_month = request.GET.get('entry_month')
     kosher = request.GET.get('kosher')
+    type = request.GET.get('type')
     search_value = {'city': city if city else '', 'street': street if street else '', 'rent_price_from': rent_price_from, 
                     'rent_price_to': rent_price_to, 'gender':gender, 'search_key':search_key if search_key else '', 'entry_month':entry_month,
-                    'floor':floor, 'partners':partners, 'kosher': kosher}
+                    'floor':floor, 'partners':partners, 'kosher': kosher, 'type':type}
     return render(request, 'index.html', {'apr':search_value})
 
 @login_required
@@ -56,7 +57,7 @@ def api(request, apr_id = -1):
     user = request.user
     if user: 
         if user.last_name != '1': return render(request, 'login.html', {'log': 'נא לאמת את כתובת המייל באמצעות מייל לאימות סיסמא שנשלח אליך בעת ההרשמה'})
-    elif request.method == 'POST':
+    if request.method == 'POST':
         city = request.POST.get('city_choice')
         street = request.POST.get('street_choice')
         floor = request.POST.get('floor')
@@ -68,14 +69,16 @@ def api(request, apr_id = -1):
         details = request.POST.get('details')
         kosher = request.POST.get('kosher')
         agree_mail = request.POST.get('agree_mail')
+        type = request.POST.get('type')
         images, urlsexist = [], []
         for k in range(0,6):
             img = request.FILES.get('image'+str(k))
             if img: images.append(img)
 
         if apr_id == -1:
+            
             newApr = Apartment(publisher=request.user, city = city, street=street, rent_price= rent_price, floor = floor, partners= partners, 
-                                gender = gender, entry_date = entry_date, details=details, title = title, kosher = kosher, agree_mail = bool(agree_mail))
+                                gender = gender, entry_date = entry_date, details=details, title = title, kosher = kosher, agree_mail = bool(agree_mail), type = type)
             newApr.save()
             newApr.uploadImages(images)
         elif apr_id:
@@ -94,6 +97,7 @@ def api(request, apr_id = -1):
                     apr. title = title
                     apr.kosher = kosher
                     apr.agree_mail = bool(agree_mail)
+                    apr.type = type
                     apr.save()
                     for k in range(0,6):
                         trp = request.POST.get(f'imagenochange{k}')
@@ -158,6 +162,7 @@ def search(request):
     floor = request.GET.get('floor')
     partners = request.GET.get('partners')
     kosher = request.GET.get('kosher')
+    type = request.GET.get('type')
     query = Apartment.objects
     if max_id and max_id != '0': query = query.filter(id__lt = max_id)
     if rent_price_from: query = query.filter(rent_price__gte = int(rent_price_from))
@@ -168,6 +173,8 @@ def search(request):
         if int(gender) != 3: query = query.filter(gender  = int(gender))
     if kosher:
         if int(kosher) != 4: query = query.filter(kosher  = int(kosher))
+    if type:
+        if int(type) != 3: query = query.filter(type  = int(type))
     if entry_month: query = query.filter(entry_date__month = int(entry_month.split('-')[1])) 
     if city: 
         query = query.filter(city__iexact  = city) 
@@ -281,3 +288,7 @@ def vaild_account(request, user_id =0, token = None):
             if mes: 
                 return render(request, 'login.html', {'reset': mes})
     return render(request, 'login.html', {'log': 'שגיאה באימות החשבון'})
+
+# custom 404 view
+def custom_404(request, exception):
+    return render(request, '404.html', status=404)

@@ -20,6 +20,7 @@ class Apartment(models.Model):
     title = models.CharField(max_length=24, default='')
     kosher = models.IntegerField(default=0)
     agree_mail = models.BooleanField(default=True)
+    type = models.IntegerField(default=0)
 
     def __str__(self):
         if self.street: return self.city + ', ' + self.street
@@ -54,26 +55,30 @@ class Apartment(models.Model):
               "details": self.short_details(),
               "title": self.short_title(),
               "kosher": self.kosher,
+              "type": self.type,
               "image": self.imagedata_set.all()[0].myurl}
 
-    
-    def updateImages_1(self,existimg):
+    def delete_1_image(self, im):
         bucket = storage.bucket()
-        oldimg_lst = [oldimg.myurl for oldimg in self.imagedata_set.all()]
-        for oldimg in oldimg_lst:
-            if oldimg not in existimg:
-                path = oldimg.replace('https://storage.googleapis.com/diro-ac902.appspot.com/','')
-                blob = bucket.blob(path)
-                blob.delete()
-                self.imagedata_set.filter(myurl__icontains = path).delete()
+        if im.internal:
+            path = im.myurl.replace('https://storage.googleapis.com/diro-ac902.appspot.com/','')
+            blob = bucket.blob(path)
+            blob.delete()
+        im.delete()
+        
+    def updateImages_1(self,existimg):
+        # oldimg_lst = [oldimg.myurl for oldimg in self.imagedata_set.all()]
+        for oldimg in self.imagedata_set.all():
+            if oldimg.myurl not in existimg:
+                self.delete_1_image(oldimg)
 
     def make_random_name(self):
         options = 'abcdefg12345hij6789'
         newId = [options[random.randint(0, len(options)-1)] for k in range(6)]
         return ''.join(newId)
     
-
     def uploadImages(self,newimg):
+        print(newimg)
         bucket = storage.bucket()
         for kk in range(len(newimg)):
             path = f'ad{self.id}_{self.make_random_name()}'
@@ -83,6 +88,7 @@ class Apartment(models.Model):
             blob.upload_from_file(newimg[kk],content_type='image/jpg')
             blob.make_public()
             url_img = blob.public_url
+            print(url_img)
             if url_img: self.imagedata_set.create(myurl = url_img)
 
     def updateImages(self,newimg, existimg):
@@ -90,16 +96,13 @@ class Apartment(models.Model):
         self.uploadImages(newimg)
 
     def deleteAllImages(self):
-        bucket = storage.bucket()
         for im in self.imagedata_set.all():
-            path = im.myurl.replace('https://storage.googleapis.com/diro-ac902.appspot.com/','')
-            blob = bucket.blob(path)
-            blob.delete()
-            im.delete()
+            self.delete_1_image(im)
     
 class ImageData(models.Model): 
     apartment = models.ForeignKey(Apartment, on_delete=models.CASCADE)
     myurl = models.CharField(max_length=250)
+    internal = models.BooleanField(default=True)
         
     def index(self):
         counter = 0

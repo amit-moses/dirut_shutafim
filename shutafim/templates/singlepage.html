@@ -472,6 +472,8 @@
                 <div class="product-description">
                     {% if apr.city %}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">עיר: {{apr.city}}</span> </div>{% endif %}
                     {% if apr.street %}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">רחוב: {{apr.street}}</span> </div>{% endif %}
+                    {% if apr.type == 0%}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">סוג: שותף קבוע</span> </div>{% endif %}
+                    {% if apr.type == 1%}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">סוג: סאבלט</span> </div>{% endif %}
                     {% if apr.rent_price %}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">שכר דירה חודשי: {{apr.rent_price}}</span> </div>{% endif %}
                     {% if apr.partners %}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">מספר שותפים: {{apr.partners}}</span> </div>{% endif %}
                     {% if apr.floor %}<div class="d-flex flex-row align-items-center"> <i class="fa fa-calendar-check-o"></i> <span class="ml-1">קומה: {{apr.floor}}</span> </div>{% endif %}

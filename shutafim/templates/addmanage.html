@@ -342,7 +342,17 @@
                         <label for="input" class="control-label">תאריך כניסה</label>
                     </div>
                 </div>
-                <div class="col-sm-12">
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <select style="height: 40px;" class="form-control" name="type"
+                            aria-label="Default select example">
+                            <option id="type_0" value="0">שותף קבוע</option>
+                            <option id="type_1" value="1">סאבלט</option>
+                        </select>
+                        <label for="input" class="control-label">סוג</label>
+                    </div>
+                </div>
+                <div class="col-sm-10">
                     <div class="form-group">
                         <input {% if apr %}value="{{apr.title}}" {% endif %} maxlength="24" class="inputof"
                             name="title" type="text" required>
@@ -378,7 +388,7 @@
                     </div><!-- container -->
                 </div>
                 <div class="form-check">
-                    <label class="form-check-label" for="flexCheckDefault"><input name="agree_mail" class="form-check-inline" type="checkbox" {%if apr.agree_mail%}checked{% endif %} id="flexCheckDefault">
+                    <label class="form-check-label" for="flexCheckDefault"><input name="agree_mail" class="form-check-inline" type="checkbox" {%if apr.agree_mail or not apr%}checked{% endif %} id="flexCheckDefault">
                     כפתור יצירת קשר במודעה, מתעניינים בדירה יוכלו לשלוח לך מייל דרך הטופס אך לא ייצפו במייל שלך. אישור זה מהווה הסכמה לקבלת מיילים ממתעניינים דרך האתר. אם בחרת שלא, מומלץ לשים פרטים בתוכן המודעה
                     </label>
                   </div>
@@ -542,5 +552,6 @@
 
         document.getElementById("check_{{apr.gender}}").selected = "true";
         document.getElementById("kosher_{{apr.kosher}}").selected = "true";
+        document.getElementById("type_{{apr.type}}").selected = "true";
     </script>
     {% endblock %}
