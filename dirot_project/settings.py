@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-5hv70jmfbrnz#ybz%g!td*f7ou-nd(*eho@tto2yyt2ajbw0hq'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1','dirot-shutafim.onrender.com']
 
@@ -142,7 +142,7 @@ EMAIL_HOST_USER = 'dirotshutafim@gmail.com'
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_KEY')
 DEFAULT_FROM_EMAIL = 'dirotshutafim@gmail.com'
 
-# SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error'] #RECAPTCHA_TEST
+SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error'] #RECAPTCHA_TEST
 RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA1')
 RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA2')
 
