@@ -14,7 +14,7 @@ from captcha.widgets import ReCaptchaV2Checkbox
 import random
   
 class Recaptcha(forms.Form):
-    captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
+    captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox, label="")
     
 def send_email(toemail, mysubject, mymessage):  
     with get_connection(  
@@ -230,7 +230,8 @@ def login_page(request):
         user = authenticate(request, username = username, password = password)
         if user:
             login(request, user)
-            return redirect('index')
+            if user.last_name != '1': return render(request, 'login.html', {'log': 'נא לאמת את כתובת המייל באמצעות מייל לאימות סיסמא שנשלח אליך בעת ההרשמה', 'title_page':'Log-in'})
+            else: return redirect('index')
         else:
             messages.error(request, f"log")
         return render(request, 'login.html', {'username1': username, 'log': 'כנראה הזנת שם משתמש או סיסמא לא נכונים', 'title_page':'Log-in'})
@@ -266,7 +267,7 @@ def send_email_to_publisher(request, apr_id = 0):
             send_email(user_to.email, f'הודעה חדשה מ{mes_from} בקשר לדירה', mail)
             errmes = 2
     
-    context = {'apr': apr, 'errmes': errmes, 'form': Recaptcha(), 'my_name_err': mes_from, 'my_con_err':mes_contact, 'my_mes_err':mes_content, 'title_page':{apr.title}}
+    context = {'apr': apr, 'errmes': errmes, 'form': Recaptcha(), 'my_name_err': mes_from, 'my_con_err':mes_contact, 'my_mes_err':mes_content, 'title_page':apr.title}
     return render(request, 'singlepage.html', context)
 
 def vaild_account(request, user_id =0, token = None):

@@ -561,6 +561,12 @@
         </div>
     </div>
 </div>
+<div style="display: none;" id="nofound" class="loader">
+    <div>
+        <img width="100px" height="auto" src="https://firebasestorage.googleapis.com/v0/b/diro-ac902.appspot.com/o/no-results.png?alt=media&token=bbeb0188-282e-434f-a991-761a02870c16">
+        <p>אין תוצאות לחיפוש</p>
+    </div>
+</div>
 <script>
     function make_city(){
             if (document.getElementById('city_choice').value){document.getElementById('street_choice').disabled = false;}
@@ -605,6 +611,7 @@ isActive = true
                 isActive = true;
             }
             if(res.data.length<12){ document.getElementById("loader").style.display = "none"; }
+            if(res.data.length + min_index === 0){ document.getElementById("nofound").style.display = ""; }
             })
                 
             

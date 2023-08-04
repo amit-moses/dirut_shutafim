@@ -83,10 +83,19 @@ WSGI_APPLICATION = 'dirot_project.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+           'ENGINE': 'django.db.backends.postgresql_psycopg2',
+           'NAME': 'dirotdb',
+           'USER': 'amit',
+           'PASSWORD': os.environ.get('DB_PASSWORD') ,
+           'HOST': 'dpg-cj6cc22cn0vc739emhb0-a.frankfurt-postgres.render.com',       
+           'PORT': '5432',
+       }
+
 }
 
 
@@ -142,7 +151,7 @@ EMAIL_HOST_USER = 'dirotshutafim@gmail.com'
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_KEY')
 DEFAULT_FROM_EMAIL = 'dirotshutafim@gmail.com'
 
-SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error'] #RECAPTCHA_TEST
+# SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error'] #RECAPTCHA_TEST
 RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA1')
 RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA2')
 
