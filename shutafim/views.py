@@ -50,13 +50,13 @@ def index(request):
     search_value = {'city': city if city else '', 'street': street if street else '', 'rent_price_from': rent_price_from, 
                     'rent_price_to': rent_price_to, 'gender':gender, 'search_key':search_key if search_key else '', 'entry_month':entry_month,
                     'floor':floor, 'partners':partners, 'kosher': kosher, 'type':type}
-    return render(request, 'index.html', {'apr':search_value})
+    return render(request, 'index.html', {'apr':search_value, 'title_page':'dirot-shutafim'})
 
 @login_required
 def api(request, apr_id = -1):
     user = request.user
     if user: 
-        if user.last_name != '1': return render(request, 'login.html', {'log': 'נא לאמת את כתובת המייל באמצעות מייל לאימות סיסמא שנשלח אליך בעת ההרשמה'})
+        if user.last_name != '1': return render(request, 'login.html', {'log': 'נא לאמת את כתובת המייל באמצעות מייל לאימות סיסמא שנשלח אליך בעת ההרשמה', 'title_page':'התחברות'})
     if request.method == 'POST':
         city = request.POST.get('city_choice')
         street = request.POST.get('street_choice')
@@ -126,28 +126,29 @@ def newadd(request, apr_id = -1):
     user = request.user
     if user.is_authenticated: 
         if user.last_name != '1': 
-            return render(request, 'login.html', {'log': 'נא לאמת את כתובת המייל באמצעות מייל לאימות סיסמא שנשלח אליך בעת ההרשמה'})
+            return render(request, 'login.html', {'log': 'נא לאמת את כתובת המייל באמצעות מייל לאימות סיסמא שנשלח אליך בעת ההרשמה', 'title_page':'Log-in'})
         elif request.method == 'GET':
             if apr_id >0:
                 apr = Apartment.objects.filter(pk = apr_id).all()
                 if apr: 
                     apr = apr[0]
-                    return render(request, 'addmanage.html', {'apr': apr, 'rdate':apr.entry_date.strftime('%Y-%m-%d')})
-            return render(request, 'addmanage.html', {'apr': False, 'date_d': False})
+                    return render(request, 'addmanage.html', {'apr': apr, 'rdate':apr.entry_date.strftime('%Y-%m-%d'), 'title_page':f'עריכה: {apr.title}'})
+            return render(request, 'addmanage.html', {'apr': False, 'date_d': False, 'title_page':'הוספת מודעה'})
 
 def single_page_view(request, apr_id):
     apr = Apartment.objects.filter(pk = apr_id).all()
     if apr: 
         apr = apr[0]
-    context = {'apr': apr, 'form': Recaptcha()}
-    return render(request, 'singlepage.html', context)
+        context = {'apr': apr, 'form': Recaptcha(), 'title_page':apr.title}
+        return render(request, 'singlepage.html', context)
+    else: return render(request, '404.html')
 
 @login_required
 def myads(request):
     user = request.user
     if user: 
-        if user.last_name != '1': return render(request, 'login.html', {'log': 'נא לאמת את כתובת המייל באמצעות מייל לאימות סיסמא שנשלח אליך בעת ההרשמה'})
-    context = {'apartments': Apartment.objects.filter(publisher = request.user.id).all()}
+        if user.last_name != '1': return render(request, 'login.html', {'log': 'נא לאמת את כתובת המייל באמצעות מייל לאימות סיסמא שנשלח אליך בעת ההרשמה', 'title_page':'Log-in'})
+    context = {'apartments': Apartment.objects.filter(publisher = request.user.id).all(), 'title_page':'המודעות שלי'}
     return render(request, 'myads.html', context)
 
 def search(request):
@@ -206,21 +207,21 @@ def register_page(request):
             if user1:
                 login(request, user1)
                 send_vaildation_email(user1.email,user1.first_name, user.id, user1.last_name)
-                return render(request, 'login.html', {'reset':'שלחנו לך מייל לאימות כתובת המייל שהזנת, מאחר שתוכל לבחור לקבל מיילים ממתעניינים בדירה נבקש לאשר שזאת כתובת המייל שלך. תודה'})
+                return render(request, 'login.html', {'reset':'שלחנו לך מייל לאימות כתובת המייל שהזנת, מאחר שתוכל לבחור לקבל מיילים ממתעניינים בדירה נבקש לאשר שזאת כתובת המייל שלך. תודה', 'title_page':'Log-in'})
         elif repassword != password: msg.append('הסיסמאות לא תואמות')
         if not username or not password or not firstname or not firstname or not email:
             msg.append('נא למלא את כל השדות')
 
-        return render(request, 'login.html', {'username2': username, 'email': email, 'firstname':firstname, 'reg': 'reg', 'msg':msg})
+        return render(request, 'login.html', {'username2': username, 'email': email, 'firstname':firstname, 'reg': 'reg', 'msg':msg, 'title_page':'Log-in'})
 
 def login_page(request):
     user = request.user
     if user.is_authenticated: 
         if user.last_name != '1': 
             if request.method == 'GET': 
-                return render(request, 'login.html')
+                return render(request, 'login.html', {'title_page':'Log-in'})
             else: 
-                return render(request, 'login.html', {'log': 'נא לאמת את כתובת המייל באמצעות מייל לאימות סיסמא שנשלח אליך בעת ההרשמה'})
+                return render(request, 'login.html', {'log': 'נא לאמת את כתובת המייל באמצעות מייל לאימות סיסמא שנשלח אליך בעת ההרשמה', 'title_page':'Log-in'})
         else: return redirect('index')
         
     elif request.method == 'POST':
@@ -232,15 +233,15 @@ def login_page(request):
             return redirect('index')
         else:
             messages.error(request, f"log")
-        return render(request, 'login.html', {'username1': username, 'log': 'כנראה הזנת שם משתמש או סיסמא לא נכונים'})
+        return render(request, 'login.html', {'username1': username, 'log': 'כנראה הזנת שם משתמש או סיסמא לא נכונים', 'title_page':'Log-in'})
     
     next = request.GET.get('next')
     if next:
         mes = ''
         if next== '/rest_password_sent/': mes = 'אם המייל שהזנת רשום, נשלח אליך קישור לאיפוס הסיסמא, נא לבדוק בתיבת המייל או בתיבת הודעות הספאם'
         elif next == 'set': mes = 'סיסמתך שונתה בהצלחה, ניתן להתחבר' 
-        return render(request, 'login.html', {'reset': mes})
-    return render(request, 'login.html')
+        return render(request, 'login.html', {'reset': mes , 'title_page':'Log-in'})
+    return render(request, 'login.html', {'title_page':'Log-in'})
 
 def logout_page(request):
     logout(request)
@@ -265,14 +266,14 @@ def send_email_to_publisher(request, apr_id = 0):
             send_email(user_to.email, f'הודעה חדשה מ{mes_from} בקשר לדירה', mail)
             errmes = 2
     
-    context = {'apr': apr, 'errmes': errmes, 'form': Recaptcha(), 'my_name_err': mes_from, 'my_con_err':mes_contact, 'my_mes_err':mes_content}
+    context = {'apr': apr, 'errmes': errmes, 'form': Recaptcha(), 'my_name_err': mes_from, 'my_con_err':mes_contact, 'my_mes_err':mes_content, 'title_page':{apr.title}}
     return render(request, 'singlepage.html', context)
 
 def vaild_account(request, user_id =0, token = None):
     mes = None
     if request.user: 
         if request.user.is_authenticated and request.user.last_name == '1':
-            return render(request, 'index.html')
+            return render(request, 'index.html', {'title_page':'dirot-shutafim'})
     
     if user_id and token:
         user = User.objects.filter(pk = user_id).all()
@@ -282,12 +283,12 @@ def vaild_account(request, user_id =0, token = None):
                 user.last_name = '1'
                 user.save()
                 mes = 'אימות כתובת המייל הושלמה, ניתן להתחבר כעת'
-                if request.user.is_authenticated:  return render(request, 'index.html', {'psk': 'psk'})
+                if request.user.is_authenticated:  return render(request, 'index.html', {'psk': 'psk', 'title_page':'dirot-shutafim'})
             elif user.last_name == '1':
                 mes = 'נראה שכבר אישרת את כתובת המייל, ניתן להתחבר'
             if mes: 
-                return render(request, 'login.html', {'reset': mes})
-    return render(request, 'login.html', {'log': 'שגיאה באימות החשבון'})
+                return render(request, 'login.html', {'reset': mes, 'title_page':'Log-in'})
+    return render(request, 'login.html', {'log': 'שגיאה באימות החשבון', 'title_page':'Log-in'})
 
 # custom 404 view
 def custom_404(request, exception):
