@@ -36,6 +36,8 @@ def send_vaildation_email(email, name, user_id, token):
 
 def index(request):
     # max_id = request.GET.get('max_id')
+    sort_val = request.GET.get('sort_val',0)
+    print('aaaa',sort_val)
     city = request.GET.get('city_choice')
     street = request.GET.get('street_choice')
     rent_price_from = request.GET.get('rent_price_from')
@@ -50,7 +52,7 @@ def index(request):
     search_value = {'city': city if city else '', 'street': street if street else '', 'rent_price_from': rent_price_from, 
                     'rent_price_to': rent_price_to, 'gender':gender, 'search_key':search_key if search_key else '', 'entry_month':entry_month,
                     'floor':floor, 'partners':partners, 'kosher': kosher, 'type':type}
-    return render(request, 'index.html', {'apr':search_value, 'title_page':'dirot-shutafim'})
+    return render(request, 'index.html', {'apr':search_value, 'sort_val': int(sort_val), 'title_page':'dirot-shutafim'})
 
 @login_required
 def api(request, apr_id = -1):
@@ -155,6 +157,8 @@ def myads(request):
 
 def search(request):
     max_id = request.GET.get('max_id')
+    sort_val = request.GET.get('sort_val',0)
+    print(sort_val,'----->')
     city = request.GET.get('city_choice')
     street = request.GET.get('street_choice')
     rent_price_from = request.GET.get('rent_price_from')
@@ -185,8 +189,20 @@ def search(request):
             query = query.filter(street__iexact = street)
     if search_key:
         query = query.filter(details__icontains = search_key) | query.filter(title__icontains = search_key)
-    
-    return JsonResponse([k.toJSON() for k in query.order_by('-id')[:12]], safe=False)
+
+    sort_key =''
+    if sort_val: 
+        sort_val = int(sort_val)
+        if sort_val % 2 == 0: sort_key = '-'
+        if sort_val == 1 or not sort_val: sort_key += 'id'
+        elif sort_val == 2 or sort_val == 3: sort_key+='rent_price'
+        elif sort_val == 4 or sort_val == 5: sort_key+='partners'
+        elif sort_val == 6 or sort_val == 7: sort_key+='entry_date'
+        elif sort_val == 8 or sort_val == 9: sort_key+='floor'
+        else: sort_key ='-id'
+    else: sort_key ='-id'
+
+    return JsonResponse([k.toJSON() for k in query.order_by(sort_key)[:12]], safe=False)
 
 def register_page(request):
     if request.method == 'POST':
