@@ -371,14 +371,14 @@
                         <div style="width: 95%;" class="row">
                             {% if apr %}
                                 {% for imgd in apr.imagedata_set.all%}
-                                <div class="col-sm-3 imgUp"><div style="background-image: url({{imgd}});" class="imagePreview"></div><label style="display: none;" class="btn btn-primary">Upload<input type="text" style="display: none;" name="imagenochange{{imgd.index}}" value="{{imgd}}"> <input type="file" name="image{{ imgd.index }}" class="uploadFile img" value="Upload Photo" style="width:0px;height:0px;overflow:hidden;"></label><i id="image{{ imgd.index }}" class="fa fa-times del"></i></div>
+                                <div class="col-sm-3 imgUp"><div style="background-image: url({{imgd}});" class="imagePreview"></div><label style="display: none;" class="btn btn-primary">Upload<input type="text" style="display: none;" name="imagenochange{{imgd.index}}" value="{{imgd}}"> <input type="file" accept="image/*" name="image{{ imgd.index }}" class="uploadFile img" value="Upload Photo" style="width:0px;height:0px;overflow:hidden;"></label><i id="image{{ imgd.index }}" class="fa fa-times del"></i></div>
                                 {% endfor %}
                                 
                                 {% else %}
                                 <div class="col-sm-3 imgUp">
                                     <div class="imagePreview"></div>
                                     <label class="btn btn-primary">
-                                        בחר קובץ<input type="file" class="uploadFile img" name="image0" value="Upload Photo"
+                                        בחר קובץ<input type="file" accept="image/*" class="uploadFile img" name="image0" value="Upload Photo"
                                             style="width: 0px;height: 0px;overflow: hidden;">
                                     </label>
                                 </div><!-- col-2 -->
@@ -516,7 +516,7 @@
         $(".imgAdd").click(function () {
             if (myindex.length > 0) {
                 var x = myindex.pop()
-                $(this).closest(".row").find('.imgAdd').before(`<div class="col-sm-3 imgUp"><div class="imagePreview"></div><label class="btn btn-primary">בחר קובץ<input type="file" name="${x}" class="uploadFile img" value="Upload Photo" style="width:0px;height:0px;overflow:hidden;"></label><i id="${x}" class="fa fa-times del"></i></div>`);
+                $(this).closest(".row").find('.imgAdd').before(`<div class="col-sm-3 imgUp"><div class="imagePreview"></div><label class="btn btn-primary">בחר קובץ<input type="file" accept="image/*" name="${x}" class="uploadFile img" value="Upload Photo" style="width:0px;height:0px;overflow:hidden;"></label><i id="${x}" class="fa fa-times del"></i></div>`);
                 if (myindex.length === 0) {
                     document.getElementById("btnAdd").style.background = '#b7b7b7';
                 }
