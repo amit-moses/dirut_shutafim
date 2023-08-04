@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-5hv70jmfbrnz#ybz%g!td*f7ou-nd(*eho@tto2yyt2ajbw0hq
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1:8000','dirot-shutafim.onrender.com']
 
 import os
 import json
@@ -146,4 +146,4 @@ SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error'] #RECAPTCHA_TEST
 RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA1')
 RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA2')
 
-MY_URL = 'http://127.0.0.1:8000/'
+MY_URL = 'http://dirot-shutafim.onrender.com/'
