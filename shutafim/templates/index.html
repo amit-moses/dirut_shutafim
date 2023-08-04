@@ -382,7 +382,7 @@
     display: inline-block;
     width: 15px;
     border-radius: 15px;
-    background: #74d2ba;
+    background: #7ea4c7;
 }
 .loader .loader-inner:nth-last-child(1){
     -webkit-animation: loading 1.5s 1s infinite;
@@ -602,7 +602,7 @@ isActive = true
                 console.log(res.data[0].image);
                 const resultHTML =''
                 for (let i = 0; i < res.data.length; i++) {
-                   add_to = `<div class="col-md-3 col-sm-6"> <div class="product-grid"> <div class="product-image"> <a href="{% url 'single_page_view' %}${res.data[i].id}" class="image"> <img class="pic-1" src="${res.data[i].image}"> </a> <span class="product-discount-label">${res.data[i].city}</span> </div> <div class="product-content"> <h3 class="title"><a href="{% url 'single_page_view' %}${res.data[i].id}">${res.data[i].title}</a></h3> <p class="price"> ${res.data[i].details}</p> <a class="add-to-cart" href="{% url 'single_page_view' %}${res.data[i].id}">פרטים</a> </div> </div> </div>`
+                   add_to = `<div class="col-md-3 col-sm-6"> <div class="product-grid"> <div class="product-image"> <a href="{% url 'single_page_view' %}${res.data[i].id}" class="image"> <img class="pic-1" src="${res.data[i].image}"> </a> <span class="product-discount-label">${res.data[i].city}</span> </div> <div class="product-content"> <h3 dir="rtl" class="title"><a href="{% url 'single_page_view' %}${res.data[i].id}">${res.data[i].title}</a></h3> <p dir="rtl" class="price"> ${res.data[i].details}</p> <a class="add-to-cart" href="{% url 'single_page_view' %}${res.data[i].id}">פרטים</a> </div> </div> </div>`
                    console.log(add_to);
                    containerall.innerHTML += add_to;
                    if(min_index === 0){ min_index = res.data[0].id;}

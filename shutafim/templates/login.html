@@ -24,7 +24,7 @@
 	transition: all 0.1s linear;
 }
 .panel-login>.panel-heading a.active{
-	color: #029f5b;
+	color: #7ea4c7;
 	font-size: 18px;
 }
 .panel-login>.panel-heading hr{
@@ -55,7 +55,7 @@
 	border-color: #ccc;
 }
 .btn-login {
-	background-color: #59B2E0;
+	background-color: #7ea4c7;
 	outline: none;
 	color: #fff;
 	font-size: 14px;
@@ -63,13 +63,13 @@
 	font-weight: normal;
 	padding: 14px 0;
 	text-transform: uppercase;
-	border-color: #59B2E6;
+	border-color: #7ea4c7;
 }
 .btn-login:hover,
 .btn-login:focus {
 	color: #fff;
-	background-color: #53A3CD;
-	border-color: #53A3CD;
+	background-color: #9bc0e2;
+	border-color: #9bc0e2;
 }
 .forgot-password {
 	text-decoration: underline;
@@ -82,7 +82,7 @@
 }
 
 .btn-register {
-	background-color: #1CB94E;
+	background-color: #7ea4c7;
 	outline: none;
 	color: #fff;
 	font-size: 14px;
@@ -90,17 +90,20 @@
 	font-weight: normal;
 	padding: 14px 0;
 	text-transform: uppercase;
-	border-color: #1CB94A;
+	border-color: #7ea4c7
 }
 .btn-register:hover,
 .btn-register:focus {
 	color: #fff;
-	background-color: #1CA347;
-	border-color: #1CA347;
+	background-color: #9bc0e2;
+	border-color: #9bc0e2;
 }
 </style>
 <div class="container">
     <div class="row">
+        <div style="margin-bottom: 10px;" class="col-md-6 col-md-offset-3">        
+            <img class="col-md-12" height="auto" width="50%" src="https://firebasestorage.googleapis.com/v0/b/diro-ac902.appspot.com/o/logo_dirot.png?alt=media&token=b530749f-2e1f-4a02-b6f7-ab2bf87e5439">        
+        </div>
         <div class="col-md-6 col-md-offset-3">
             <div class="panel panel-login">
                 <div class="panel-heading">
@@ -137,10 +140,6 @@
                                 <div class="form-group">
                                     <input type="password" name="password" id="password" tabindex="2" class="form-control" placeholder="Password">
                                 </div>
-                                <div class="form-group text-center">
-                                    <input type="checkbox" tabindex="3" class="" name="remember" id="remember">
-                                    <label for="remember"> Remember Me</label>
-                                </div>
                                 <div class="form-group">
                                     <div class="row">
                                         <div class="col-sm-6 col-sm-offset-3">
@@ -152,7 +151,7 @@
                                     <div class="row">
                                         <div class="col-lg-12">
                                             <div class="text-center">
-                                                <a href="{% url 'reset_password' %}" tabindex="5" class="forgot-password">Forgot Password?</a>
+                                                <a href="{% url 'reset_password' %}" tabindex="5" class="forgot-password">שכחתי סיסמא</a>
                                             </div>
                                         </div>
                                     </div>

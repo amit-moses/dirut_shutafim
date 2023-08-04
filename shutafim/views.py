@@ -132,7 +132,9 @@ def newadd(request, apr_id = -1):
                 apr = Apartment.objects.filter(pk = apr_id).all()
                 if apr: 
                     apr = apr[0]
-                    return render(request, 'addmanage.html', {'apr': apr, 'rdate':apr.entry_date.strftime('%Y-%m-%d'), 'title_page':f'עריכה: {apr.title}'})
+                    if apr.publisher.id == user.id: return render(request, 'addmanage.html', {'apr': apr, 'rdate':apr.entry_date.strftime('%Y-%m-%d'), 'title_page':f'עריכה: {apr.title}'})
+                    else: 
+                        return redirect('myads')
             return render(request, 'addmanage.html', {'apr': False, 'date_d': False, 'title_page':'הוספת מודעה'})
 
 def single_page_view(request, apr_id):
@@ -194,7 +196,10 @@ def register_page(request):
         firstname = request.POST.get('firstname')
         email = request.POST.get('email')
         msg = []
+        if username:
+            if len(username) < 4: msg.append('שם המשתמש צריך להכיל לפחות 4 תווים')
         if User.objects.filter(email = email).all(): msg.append('מייל זה נמצא בשימוש')
+        if User.objects.filter(username = username).all(): msg.append('שם משתמש זה נמצא בשימוש')
         elif repassword == password and password and username and email and firstname:
             try:
                 options = 'Aa5B1b2C3r4Df5q6E4o7u28F9Q1mRS'

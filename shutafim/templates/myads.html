@@ -173,8 +173,8 @@
                 <span class="product-discount-label">{{apr.city}}</span>
             </div>
             <div class="product-content">
-                <h3 class="title"><a href="{% url 'single_page_view' %}{{apr.id}}">{{apr.short_title}}</a></h3>
-                <p class="price"> {{apr.short_details}}</p>
+                <h3 dir="rtl" class="title"><a href="{% url 'single_page_view' %}{{apr.id}}">{{apr.short_title}}</a></h3>
+                <p dir="rtl" class="price"> {{apr.short_details}}</p>
                 <div style="display: flex; align-items: stretch; justify-content: left;">
                         <form method="POST" action="{% url 'delete_apr' %}{{apr.id}}">
                             {% csrf_token %}
