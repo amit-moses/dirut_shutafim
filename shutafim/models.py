@@ -43,6 +43,7 @@ class Apartment(models.Model):
     
     def get_date_format(self):
         return self.entry_date.strftime('%d/%m/%Y')
+    
     def toJSON(self):
       return {"id": self.id, 
               "city": self.city , 

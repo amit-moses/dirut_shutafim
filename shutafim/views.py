@@ -157,7 +157,6 @@ def myads(request):
 
 def search(request):
     max_id = request.GET.get('max_id')
-    print(max_id,'-----------------')
     sort_val = request.GET.get('sort_val',0)
     city = request.GET.get('city_choice')
     street = request.GET.get('street_choice')
