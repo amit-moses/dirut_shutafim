@@ -157,8 +157,8 @@ def myads(request):
 
 def search(request):
     max_id = request.GET.get('max_id')
+    print(max_id,'-----------------')
     sort_val = request.GET.get('sort_val',0)
-    print(sort_val,'----->')
     city = request.GET.get('city_choice')
     street = request.GET.get('street_choice')
     rent_price_from = request.GET.get('rent_price_from')
@@ -171,7 +171,7 @@ def search(request):
     kosher = request.GET.get('kosher')
     type = request.GET.get('type')
     query = Apartment.objects
-    if max_id and max_id != '0': query = query.filter(id__lt = max_id)
+    # if max_id and max_id != '0': query = query.filter(id__lt = max_id)
     if rent_price_from: query = query.filter(rent_price__gte = int(rent_price_from))
     if rent_price_to: query = query.filter(rent_price__lte  = int(rent_price_to))
     if floor: query = query.filter(floor = floor)
@@ -189,18 +189,39 @@ def search(request):
             query = query.filter(street__iexact = street)
     if search_key:
         query = query.filter(details__icontains = search_key) | query.filter(title__icontains = search_key)
-
-    sort_key =''
+    print('60000', max_id)
+    sort_key = '-id'
     if sort_val: 
         sort_val = int(sort_val)
-        if sort_val % 2 == 0: sort_key = '-'
-        if sort_val == 1 or not sort_val: sort_key += 'id'
-        elif sort_val == 2 or sort_val == 3: sort_key+='rent_price'
-        elif sort_val == 4 or sort_val == 5: sort_key+='partners'
-        elif sort_val == 6 or sort_val == 7: sort_key+='entry_date'
-        elif sort_val == 8 or sort_val == 9: sort_key+='floor'
-        else: sort_key ='-id'
-    else: sort_key ='-id'
+        if sort_val == 0: 
+            if max_id and max_id != '-1': query = query.filter(id__lt = max_id)
+        elif sort_val == 1: 
+            sort_key = 'id'
+            if max_id and max_id != '-1': query = query.filter(id__gt = max_id)
+        elif sort_val == 2: 
+            sort_key = '-rent_price'
+            if max_id and max_id != '-1': query = query.filter(rent_price__lt = max_id)
+        elif sort_val == 3: 
+            sort_key = 'rent_price'
+            if max_id and max_id != '-1': query = query.filter(rent_price__gt = max_id)
+        elif sort_val == 4: 
+            sort_key = '-partners'
+            if max_id and max_id != '-1': query = query.filter(partners__lt = max_id)
+        elif sort_val == 5: 
+            sort_key = 'partners'
+            if max_id and max_id != '-1': query = query.filter(partners__gt = max_id)
+        elif sort_val == 6: 
+            sort_key = '-entry_date'
+            if max_id and max_id != '2001-1-1': query = query.filter(entry_date__lt = max_id)
+        elif sort_val == 7: 
+            sort_key = 'entry_date'
+            if max_id and max_id != '2001-1-1': query = query.filter(entry_date__gt = max_id)
+        elif sort_val == 8: 
+            sort_key = '-floor'
+            if max_id and max_id != '-1': query = query.filter(floor__lt = max_id)
+        elif sort_val == 9:
+            sort_key = 'floor' 
+            if max_id and max_id != '-1': query = query.filter(floor__gt = max_id)
 
     return JsonResponse([k.toJSON() for k in query.order_by(sort_key)[:12]], safe=False)
 

@@ -432,9 +432,9 @@
             <button onclick="change_dir()" class="btn btn-primary dropdown-toggle" data-sort="none"><i class="glyphicon glyphicon-triangle-{% if sort_val|divisibleby:2 %}bottom{% else %}top{%endif%}"></i></button>
             <ul class="dropdown-menu">
                 <li><a href="#" onclick="sort_dir({% if sort_val|divisibleby:2 %}0{% else %}1{%endif%})" data-type="alpha">תאריך פרסום</a></li>
-                <li><a href="#" onclick="sort_dir({% if sort_val|divisibleby:2 %}2{% else %}3{%endif%})" data-type="alpha">תאריך כניסה</a></li>
+                <li><a href="#" onclick="sort_dir({% if sort_val|divisibleby:2 %}6{% else %}7{%endif%})" data-type="alpha">תאריך כניסה</a></li>
+                <li><a href="#" onclick="sort_dir({% if sort_val|divisibleby:2 %}2{% else %}3{%endif%})" data-type="alpha">מחיר שכירות</a></li>
                 <li><a href="#" onclick="sort_dir({% if sort_val|divisibleby:2 %}4{% else %}5{%endif%})" data-type="alpha">מספר שותפים</a></li>
-                <li><a href="#" onclick="sort_dir({% if sort_val|divisibleby:2 %}6{% else %}7{%endif%})" data-type="alpha">מחיר שכירות</a></li>
                 <li><a href="#" onclick="sort_dir({% if sort_val|divisibleby:2 %}8{% else %}9{%endif%})" data-type="alpha">קומה</a></li>
             </ul>
         </div>
@@ -593,11 +593,13 @@
 isActive = true
     drk = document.getElementById(`idcat_0`);
     if (drk) drk.classList.add("active")
-    min_index= 0
+    min_index= -1
+
     function loadNext12(){
+        console.log(min_index)
         axios.get('{% url "search" %}', { 
             params: { 
-                max_id: min_index,
+                max_id: {% if sort_val == 6 or sort_val == 7 %}min_index === -1? '2001-1-1':{% endif %}min_index,
                 {% if apr.city %} city_choice: '{{apr.city}}', {% endif %}
                 {% if apr.street %} street_choice: '{{apr.street}}', {% endif %}
                 {% if apr.rent_price_from %} rent_price_from: '{{apr.rent_price_from}}', {% endif %}
@@ -612,15 +614,15 @@ isActive = true
                 sort_val: {% if sort_val %}'{{sort_val}}'{% else %}0{% endif %}
             }}).then(res => {
             if(res.data.length){
-                console.log(res.data[0].image);
+                console.log(res.data);
                 const resultHTML =''
                 for (let i = 0; i < res.data.length; i++) {
                    add_to = `<div class="col-md-3 col-sm-6"> <div class="product-grid"> <div class="product-image"> <a href="{% url 'single_page_view' %}${res.data[i].id}" class="image"> <img class="pic-1" src="${res.data[i].image}"> </a> <span class="product-discount-label">${res.data[i].city}</span> </div> <div class="product-content"> <h3 dir="rtl" class="title"><a href="{% url 'single_page_view' %}${res.data[i].id}">${res.data[i].title}</a></h3> <p dir="rtl" class="price"> ${res.data[i].details}</p> <a class="add-to-cart" href="{% url 'single_page_view' %}${res.data[i].id}">פרטים</a> </div> </div> </div>`
-                   console.log(add_to);
+                //    console.log(res.data[i]);
                    containerall.innerHTML += add_to;
-                   if(min_index === 0){ min_index = res.data[0].id;}
-                   else{min_index = Math.min(res.data[i].id, min_index);}
                 }
+                min_index = res.data[res.data.length-1].{% if sort_val == 0 or sort_val == 1%}id{% elif sort_val == 2 or sort_val == 3%}rent_price{% elif sort_val == 4 or sort_val == 5%}partners{% elif sort_val == 6 or sort_val == 7%}entry_date{% elif sort_val == 8 or sort_val == 9%}floor{% endif %};
+                   
                 isActive = true;
             }
             if(res.data.length<12){ document.getElementById("loader").style.display = "none"; }
