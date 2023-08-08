@@ -37,7 +37,6 @@ def send_vaildation_email(email, name, user_id, token):
 def index(request):
     # max_id = request.GET.get('max_id')
     sort_val = request.GET.get('sort_val',0)
-    print('aaaa',sort_val)
     city = request.GET.get('city_choice')
     street = request.GET.get('street_choice')
     rent_price_from = request.GET.get('rent_price_from')
@@ -188,7 +187,6 @@ def search(request):
             query = query.filter(street__iexact = street)
     if search_key:
         query = query.filter(details__icontains = search_key) | query.filter(title__icontains = search_key)
-    print('60000', max_id)
     sort_key = '-id'
     if sort_val: 
         sort_val = int(sort_val)
