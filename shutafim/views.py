@@ -315,7 +315,7 @@ def vaild_account(request, user_id =0, token = None):
     mes = None
     if request.user: 
         if request.user.is_authenticated and request.user.last_name == '1':
-            return render(request, 'index.html', {'title_page':'dirot-shutafim'})
+            return redirect('index')
     
     if user_id and token:
         user = User.objects.filter(pk = user_id).all()
@@ -325,7 +325,7 @@ def vaild_account(request, user_id =0, token = None):
                 user.last_name = '1'
                 user.save()
                 mes = 'אימות כתובת המייל הושלמה, ניתן להתחבר כעת'
-                if request.user.is_authenticated:  return render(request, 'index.html', {'psk': 'psk', 'title_page':'dirot-shutafim'})
+                if request.user.is_authenticated:  return redirect('index')
             elif user.last_name == '1':
                 mes = 'נראה שכבר אישרת את כתובת המייל, ניתן להתחבר'
             if mes: 

@@ -11,7 +11,7 @@
         <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav navbar-right">
                 <li id="idcat_0"><a href="{% url 'index' %}"><span class=""></span> חיפוש דירות</a></li>
-                {% if user.is_authenticated and user.last_name == '1' or psk %}
+                {% if user.is_authenticated and user.last_name == '1' %}
                 <li id="idcat_5"><a href="{% url 'newadd' %}"><span class=""></span>מודעה חדשה</a></li>
                 <li id="idcat_4"><a href="{% url 'myads' %}"><span class=""></span>המודעות שלי</a></li>
                 <li id="idcat_3"><a href=""><span class=""></span> {{ user.username }}</a></li>
