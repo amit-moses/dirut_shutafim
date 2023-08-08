@@ -626,7 +626,7 @@ isActive = true
                 isActive = true;
             }
             if(res.data.length<12){ document.getElementById("loader").style.display = "none"; }
-            if(res.data.length + min_index === 0){ document.getElementById("nofound").style.display = ""; }
+            if(res.data.length === 0){ document.getElementById("nofound").style.display = ""; }
             })
                 
             
