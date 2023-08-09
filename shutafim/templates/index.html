@@ -593,13 +593,12 @@
 isActive = true
     drk = document.getElementById(`idcat_0`);
     if (drk) drk.classList.add("active")
-    min_index= -1
-
+    mypage = 1
     function loadNext12(){
-        console.log(min_index)
         axios.get('{% url "search" %}', { 
             params: { 
-                max_id: {% if sort_val == 6 or sort_val == 7 %}min_index === -1? '2001-1-1':{% endif %}min_index,
+                last_index: {{max_index}},
+                page: mypage,
                 {% if apr.city %} city_choice: '{{apr.city}}', {% endif %}
                 {% if apr.street %} street_choice: '{{apr.street}}', {% endif %}
                 {% if apr.rent_price_from %} rent_price_from: '{{apr.rent_price_from}}', {% endif %}
@@ -614,19 +613,16 @@ isActive = true
                 sort_val: {% if sort_val %}'{{sort_val}}'{% else %}0{% endif %}
             }}).then(res => {
             if(res.data.length){
-                console.log(res.data);
                 const resultHTML =''
                 for (let i = 0; i < res.data.length; i++) {
                    add_to = `<div class="col-md-3 col-sm-6"> <div class="product-grid"> <div class="product-image"> <a href="{% url 'single_page_view' %}${res.data[i].id}" class="image"> <img class="pic-1" src="${res.data[i].image}"> </a> <span class="product-discount-label">${res.data[i].city}</span> </div> <div class="product-content"> <h3 dir="rtl" class="title"><a href="{% url 'single_page_view' %}${res.data[i].id}">${res.data[i].title}</a></h3> <p dir="rtl" class="price"> ${res.data[i].details}</p> <a class="add-to-cart" href="{% url 'single_page_view' %}${res.data[i].id}">פרטים</a> </div> </div> </div>`
-                //    console.log(res.data[i]);
                    containerall.innerHTML += add_to;
                 }
-                min_index = res.data[res.data.length-1].{% if sort_val == 0 or sort_val == 1%}id{% elif sort_val == 2 or sort_val == 3%}rent_price{% elif sort_val == 4 or sort_val == 5%}partners{% elif sort_val == 6 or sort_val == 7%}entry_date{% elif sort_val == 8 or sort_val == 9%}floor{% endif %};
-                   
+                mypage += 1;                   
                 isActive = true;
             }
             if(res.data.length<12){ document.getElementById("loader").style.display = "none"; }
-            if(res.data.length === 0){ document.getElementById("nofound").style.display = ""; }
+            if(res.data.length === 0 && page === 1){ document.getElementById("nofound").style.display = ""; }
             })
                 
             
@@ -734,9 +730,9 @@ isActive = true
                 32000
             );
         });
-        document.getElementById("check_{{apr.gender}}").selected = "true";
-        document.getElementById("kosher_{{apr.kosher}}").selected = "true";
-        document.getElementById("type_{{apr.type}}").selected = "true";
+        {% if apr.gender %}document.getElementById("check_{{apr.gender}}").selected = "true"; {% endif %}
+        {% if apr.kosher %}document.getElementById("kosher_{{apr.kosher}}").selected = "true"; {% endif %}
+        {% if apr.type %}document.getElementById("type_{{apr.type}}").selected = "true"; {% endif %}
 
         function sort_dir(sort_to){
             document.getElementById('sort_val').value = sort_to;

@@ -34,24 +34,28 @@ def send_vaildation_email(email, name, user_id, token):
     mes = f'שלום {name}, \n תודה שנרשמת לאתר! רצינו לוודא שזה באמת המייל שלך מאחר ותוכל להגדיר שאתה מעוניין לקבל הודעות ממשתמשים שיתעניינו בדירות שתפרסם באתר.\n על מנת להשלים את תהליך ההרשמה יש ללחוץ על הקישור המופיע במייל זה. לאחר לחיצה עליו, חשבונך יופעל.\n הקישור: \n{settings.MY_URL}vaild/{user_id}/{token} \n תודה!'
     send_email(email, 'אימות כתובת המייל' ,mes)
 
+def get_max_id():
+    query = Apartment.objects.order_by('-id')
+    if query: return query.first().id
+    else: return 0
+
 def index(request):
-    # max_id = request.GET.get('max_id')
     sort_val = request.GET.get('sort_val',0)
-    city = request.GET.get('city_choice')
-    street = request.GET.get('street_choice')
-    rent_price_from = request.GET.get('rent_price_from')
-    rent_price_to = request.GET.get('rent_price_to')
-    gender = request.GET.get('gender')
-    search_key = request.GET.get('search_key')
-    floor = request.GET.get('floor')
-    partners = request.GET.get('partners')
-    entry_month = request.GET.get('entry_month')
-    kosher = request.GET.get('kosher')
-    type = request.GET.get('type')
-    search_value = {'city': city if city else '', 'street': street if street else '', 'rent_price_from': rent_price_from, 
-                    'rent_price_to': rent_price_to, 'gender':gender, 'search_key':search_key if search_key else '', 'entry_month':entry_month,
+    city = request.GET.get('city_choice','')
+    street = request.GET.get('street_choice','')
+    rent_price_from = request.GET.get('rent_price_from','')
+    rent_price_to = request.GET.get('rent_price_to','')
+    gender = request.GET.get('gender','')
+    search_key = request.GET.get('search_key','')
+    floor = request.GET.get('floor','')
+    partners = request.GET.get('partners','')
+    entry_month = request.GET.get('entry_month','')
+    kosher = request.GET.get('kosher',0)
+    type = request.GET.get('type',0)
+    search_value = {'city': city, 'street': street, 'rent_price_from': rent_price_from, 
+                    'rent_price_to': rent_price_to, 'gender':gender, 'search_key':search_key, 'entry_month':entry_month,
                     'floor':floor, 'partners':partners, 'kosher': kosher, 'type':type}
-    return render(request, 'index.html', {'apr':search_value, 'sort_val': int(sort_val), 'title_page':'dirot-shutafim'})
+    return render(request, 'index.html', {'apr':search_value, 'sort_val': int(sort_val),'max_index':get_max_id(), 'title_page':'dirot-shutafim'})
 
 @login_required
 def api(request, apr_id = -1):
@@ -155,7 +159,8 @@ def myads(request):
     return render(request, 'myads.html', context)
 
 def search(request):
-    max_id = request.GET.get('max_id')
+    last_index = int(request.GET.get('last_index',0))
+    page = int(request.GET.get('page',1))
     sort_val = request.GET.get('sort_val',0)
     city = request.GET.get('city_choice')
     street = request.GET.get('street_choice')
@@ -169,7 +174,6 @@ def search(request):
     kosher = request.GET.get('kosher')
     type = request.GET.get('type')
     query = Apartment.objects
-    # if max_id and max_id != '0': query = query.filter(id__lt = max_id)
     if rent_price_from: query = query.filter(rent_price__gte = int(rent_price_from))
     if rent_price_to: query = query.filter(rent_price__lte  = int(rent_price_to))
     if floor: query = query.filter(floor = floor)
@@ -187,40 +191,16 @@ def search(request):
             query = query.filter(street__iexact = street)
     if search_key:
         query = query.filter(details__icontains = search_key) | query.filter(title__icontains = search_key)
-    sort_key = '-id'
-    if sort_val: 
-        sort_val = int(sort_val)
-        if sort_val == 0: 
-            if max_id and max_id != '-1': query = query.filter(id__lt = max_id)
-        elif sort_val == 1: 
-            sort_key = 'id'
-            if max_id and max_id != '-1': query = query.filter(id__gt = max_id)
-        elif sort_val == 2: 
-            sort_key = '-rent_price'
-            if max_id and max_id != '-1': query = query.filter(rent_price__lt = max_id)
-        elif sort_val == 3: 
-            sort_key = 'rent_price'
-            if max_id and max_id != '-1': query = query.filter(rent_price__gt = max_id)
-        elif sort_val == 4: 
-            sort_key = '-partners'
-            if max_id and max_id != '-1': query = query.filter(partners__lt = max_id)
-        elif sort_val == 5: 
-            sort_key = 'partners'
-            if max_id and max_id != '-1': query = query.filter(partners__gt = max_id)
-        elif sort_val == 6: 
-            sort_key = '-entry_date'
-            if max_id and max_id != '2001-1-1': query = query.filter(entry_date__lt = max_id)
-        elif sort_val == 7: 
-            sort_key = 'entry_date'
-            if max_id and max_id != '2001-1-1': query = query.filter(entry_date__gt = max_id)
-        elif sort_val == 8: 
-            sort_key = '-floor'
-            if max_id and max_id != '-1': query = query.filter(floor__lt = max_id)
-        elif sort_val == 9:
-            sort_key = 'floor' 
-            if max_id and max_id != '-1': query = query.filter(floor__gt = max_id)
-
-    return JsonResponse([k.toJSON() for k in query.order_by(sort_key)[:12]], safe=False)
+    
+    sort_key = 'id'
+    sort_val = int(sort_val)
+    if sort_val == 2 or sort_val == 3: sort_key = 'rent_price'
+    elif sort_val == 4 or sort_val == 5: sort_key = 'partners'
+    elif sort_val == 6 or sort_val == 7: sort_key = 'entry_date'
+    elif sort_val == 8 or sort_val == 9: sort_key = 'floor'
+    if sort_val % 2 == 0: sort_key = '-'+sort_key
+    query = query.filter(id__lte = last_index)
+    return JsonResponse([k.toJSON() for k in query.order_by(sort_key)[12*(page - 1):12*page]], safe=False)
 
 def register_page(request):
     if request.method == 'POST':
