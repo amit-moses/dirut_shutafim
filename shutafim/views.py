@@ -45,13 +45,13 @@ def index(request):
     street = request.GET.get('street_choice','')
     rent_price_from = request.GET.get('rent_price_from','')
     rent_price_to = request.GET.get('rent_price_to','')
-    gender = request.GET.get('gender','')
+    gender = request.GET.get('gender',3)
     search_key = request.GET.get('search_key','')
     floor = request.GET.get('floor','')
     partners = request.GET.get('partners','')
     entry_month = request.GET.get('entry_month','')
-    kosher = request.GET.get('kosher',0)
-    type = request.GET.get('type',0)
+    kosher = request.GET.get('kosher',4)
+    type = request.GET.get('type',3)
     search_value = {'city': city, 'street': street, 'rent_price_from': rent_price_from, 
                     'rent_price_to': rent_price_to, 'gender':gender, 'search_key':search_key, 'entry_month':entry_month,
                     'floor':floor, 'partners':partners, 'kosher': kosher, 'type':type}
@@ -123,7 +123,6 @@ def delete_apr(request, apr_id=0):
                         apr.deleteAllImages()
                     finally:
                         apr.delete()
-
     return redirect('myads')
 
 @login_required
@@ -161,7 +160,7 @@ def myads(request):
 def search(request):
     last_index = int(request.GET.get('last_index',0))
     page = int(request.GET.get('page',1))
-    sort_val = request.GET.get('sort_val',0)
+    sort_val = int(request.GET.get('sort_val',0))
     city = request.GET.get('city_choice')
     street = request.GET.get('street_choice')
     rent_price_from = request.GET.get('rent_price_from')
@@ -187,13 +186,11 @@ def search(request):
     if entry_month: query = query.filter(entry_date__month = int(entry_month.split('-')[1])) 
     if city: 
         query = query.filter(city__iexact  = city) 
-        if street: 
-            query = query.filter(street__iexact = street)
+        if street: query = query.filter(street__iexact = street)
     if search_key:
         query = query.filter(details__icontains = search_key) | query.filter(title__icontains = search_key)
     
     sort_key = 'id'
-    sort_val = int(sort_val)
     if sort_val == 2 or sort_val == 3: sort_key = 'rent_price'
     elif sort_val == 4 or sort_val == 5: sort_key = 'partners'
     elif sort_val == 6 or sort_val == 7: sort_key = 'entry_date'

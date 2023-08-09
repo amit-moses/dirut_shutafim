@@ -730,9 +730,9 @@ isActive = true
                 32000
             );
         });
-        {% if apr.gender %}document.getElementById("check_{{apr.gender}}").selected = "true"; {% endif %}
-        {% if apr.kosher %}document.getElementById("kosher_{{apr.kosher}}").selected = "true"; {% endif %}
-        {% if apr.type %}document.getElementById("type_{{apr.type}}").selected = "true"; {% endif %}
+        document.getElementById("check_{{apr.gender}}").selected = "true"; 
+        document.getElementById("kosher_{{apr.kosher}}").selected = "true"; 
+        document.getElementById("type_{{apr.type}}").selected = "true";
 
         function sort_dir(sort_to){
             document.getElementById('sort_val').value = sort_to;
