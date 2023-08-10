@@ -211,7 +211,7 @@ def register_page(request):
             if len(username) < 4: msg.append('שם המשתמש צריך להכיל לפחות 4 תווים')
         if User.objects.filter(email = email).all(): msg.append('מייל זה נמצא בשימוש')
         if User.objects.filter(username = username).all(): msg.append('שם משתמש זה נמצא בשימוש')
-        elif repassword == password and password and username and email and firstname:
+        elif repassword == password and password and username and email and firstname and not msg:
             try:
                 options = 'Aa5B1b2C3r4Df5q6E4o7u28F9Q1mRS'
                 vaildation = [options[random.randint(0, len(options)-1)] for k in range(16)]
@@ -229,6 +229,7 @@ def register_page(request):
             msg.append('נא למלא את כל השדות')
 
         return render(request, 'login.html', {'username2': username, 'email': email, 'firstname':firstname, 'reg': 'reg', 'msg':msg, 'title_page':'Log-in'})
+    return render(request, 'login.html', {'reg': 'reg', 'msg':[], 'title_page':'Log-in'})
 
 def login_page(request):
     user = request.user
@@ -236,15 +237,15 @@ def login_page(request):
         if user.last_name != '1': 
             if request.method == 'GET': 
                 return render(request, 'login.html', {'title_page':'Log-in'})
-            else: 
-                return render(request, 'login.html', {'log': 'נא לאמת את כתובת המייל באמצעות מייל לאימות סיסמא שנשלח אליך בעת ההרשמה', 'title_page':'Log-in'})
         else: return redirect('index')
         
-    elif request.method == 'POST':
+    if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password') 
         user = authenticate(request, username = username, password = password)
         if user:
+            if user.is_authenticated: 
+                logout(request) 
             login(request, user)
             if user.last_name != '1': return render(request, 'login.html', {'log': 'נא לאמת את כתובת המייל באמצעות מייל לאימות סיסמא שנשלח אליך בעת ההרשמה', 'title_page':'Log-in'})
             else: return redirect('index')
