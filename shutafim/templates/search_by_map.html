@@ -420,27 +420,166 @@
 }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<script type="text/javascript">
+    drk = document.getElementById(`idcat_0`);
+    if (drk) drk.classList.add("active")
 
-<!-- Button trigger modal -->
-<div class="col-sm-12">
-    <div class="form-group">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">&nbsp; חיפוש &nbsp;&nbsp;&nbsp;<i class="glyphicon glyphicon-search"></i>
-        </button>
+    var map, clusterLayer, infobox, searchManager;
+    my_pins = [];
+	function GetMap() {
+	    map = new Microsoft.Maps.Map('#myMap', {
+        // You need your key.
+    credentials: 'g4LhgKSBXrmZXofWgsoKlmsYxRH8QwvV2uFJNEjAz33dm',
+    });
+
+        //Add an infobox to the map.
+	    infobox = new Microsoft.Maps.Infobox(map.getCenter(), { visible: false });
+	    infobox.setMap(map);
+        infobox.setOptions({maxHeight: 400})
+        console.log(infobox.getOptions());
+
+        Microsoft.Maps.loadModule("Microsoft.Maps.Clustering", function () {
+            //Create a clustering layer
+            clusterLayer = new Microsoft.Maps.ClusterLayer([], {
+                clusteredPinCallback: createCustomClusterPushpins,
+                callback: createPushpinList
+            });
+            map.layers.insert(clusterLayer);
+        });
+	}
+
+    function geocodeQuery(query, des){
+    if (!searchManager) {
+        Microsoft.Maps.loadModule('Microsoft.Maps.Search', function () {
+            searchManager = new Microsoft.Maps.Search.SearchManager(map);
+            geocodeQuery(query,des);
+        });
+    } else {
+        let searchRequest = {
+            where: query,
+            callback: function (r) {
+                if (r && r.results && r.results.length > 0) {
+                    var pin = new Microsoft.Maps.Pushpin(r.results[0].location);
+                    pin.metadata = {
+                title: 'Pin',
+                description: des
+            };
+            Microsoft.Maps.Events.addHandler(pin, 'click', pushpinClicked);
+                    my_pins.push(pin)
+                    showInfobox(pin)
+                    clusterLayer.setPushpins(my_pins);
+                };
+            },
+            errorCallback: function (e) {
+                alert("No results found.");
+            }
+        };
+        searchManager.geocode(searchRequest);
+    };
+};
+
+	function createCustomClusterPushpins(cluster) {
+	    //Create a title for the cluster.
+
+	    //Add handler for the cluster click event.
+	    Microsoft.Maps.Events.addHandler(cluster, 'click', pushpinClicked);
+	}
+
+	function pushpinClicked(e) {
+        //Show an infobox when a pushpin is clicked.
+	    showInfobox(e.target);
+	}
+
+	function createPushpinList() {
+	    //Create a list of displayed pushpins each time clustering layer updates.
+
+	    if (clusterLayer != null) {
+	        infobox.setOptions({ visible: false });
+
+            //Get all pushpins that are currently displayed.
+	        var data = clusterLayer.getDisplayedPushpins();
+	        var output = [];
+
+            //Create a list of links for each pushpin that opens up the infobox for it.
+	        for (var i = 0; i < data.length; i++) {
+	            output.push("<a href='javascript:void(0);' onclick='showInfoboxByGridKey(", data[i].gridKey, ");'>");
+	            output.push(data[i].getTitle(), "</a><br/>");
+	        }
+
+	        // document.getElementById('listOfPins').innerHTML = output.join('');
+	    }
+	}
+
+	function showInfoboxByGridKey(gridKey) {
+        //Look up the cluster or pushpin by gridKey.
+        var clusterPin = clusterLayer.getClusterPushpinByGridKey(gridKey);
+
+        //Show an infobox for the cluster or pushpin.
+	    showInfobox(clusterPin);
+	}
+
+	function showInfobox(pin) {
+	    var description = [];
+
+        //Check to see if the pushpin is a cluster.
+	    if (pin.containedPushpins) {
+
+	        //Create a list of all pushpins that are in the cluster.
+	        description.push('<div style="overflow-y:auto;">');
+	        for (var i = 0; i < pin.containedPushpins.length; i++) {
+	            description.push(pin.containedPushpins[i].metadata.description);
+	        }
+	        description.push('</div>');
+            //Display an infobox for the pushpin.
+            // console.log(Location(pin.containedPushpins[0].geometry.x, pin.containedPushpins[0].geometry.y)) 
+	        infobox.setOptions({
+            location: pin.getLocation(),
+	        description: description.join(''),
+	        visible: true
+	    });
+	    }else if (pin){
+            infobox.setOptions({
+                location: pin.getLocation(),
+	        description: pin.metadata.description,
+	        visible: true
+	    });
+        }
         
-        <div class="btn-group sort-btn">
-            <button class="btn btn-primary" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">מיון לפי</button>
-            <button onclick="change_dir()" class="btn btn-primary dropdown-toggle" data-sort="none"><i class="glyphicon glyphicon-triangle-{% if sort_val|divisibleby:2 %}bottom{% else %}top{%endif%}"></i></button>
-            <ul class="dropdown-menu">
-                <li><a href="#" onclick="sort_dir({% if sort_val|divisibleby:2 %}0{% else %}1{%endif%})" data-type="alpha">תאריך פרסום</a></li>
-                <li><a href="#" onclick="sort_dir({% if sort_val|divisibleby:2 %}6{% else %}7{%endif%})" data-type="alpha">תאריך כניסה</a></li>
-                <li><a href="#" onclick="sort_dir({% if sort_val|divisibleby:2 %}2{% else %}3{%endif%})" data-type="alpha">מחיר שכירות</a></li>
-                <li><a href="#" onclick="sort_dir({% if sort_val|divisibleby:2 %}4{% else %}5{%endif%})" data-type="alpha">מספר שותפים</a></li>
-                <li><a href="#" onclick="sort_dir({% if sort_val|divisibleby:2 %}8{% else %}9{%endif%})" data-type="alpha">קומה</a></li>
-            </ul>
-        </div>
+	}
 
-        <a href="{% url 'map' %}" type="button" class="btn btn-primary">&nbsp; חיפוש על המפה &nbsp;&nbsp;&nbsp;<i class="glyphicon glyphicon-map-marker"></i></a>
-</div>
+    function loadData(){
+        axios.get('{% url "search" %}', { 
+            params: { 
+                page: -1,
+                {% if apr.city %} city_choice: '{{apr.city}}', {% endif %}
+                {% if apr.street %} street_choice: '{{apr.street}}', {% endif %}
+                {% if apr.rent_price_from %} rent_price_from: '{{apr.rent_price_from}}', {% endif %}
+                {% if apr.rent_price_to %} rent_price_to: '{{apr.rent_price_to}}', {% endif %}
+                {% if apr.gender %} gender: '{{apr.gender}}', {% endif %}
+                {% if apr.kosher %} kosher: '{{apr.kosher}}', {% endif %}
+                {% if apr.search_key %} search_key: '{{apr.search_key}}', {% endif %}
+                {% if apr.entry_month %} entry_month: '{{apr.entry_month}}', {% endif %}
+                {% if apr.floor %} floor: '{{apr.floor}}', {% endif %}
+                {% if apr.partners %} partners: '{{apr.partners}}', {% endif %}
+                {% if apr.type %} type: '{{apr.type}}', {% endif %}
+                sort_val: {% if sort_val %}'{{sort_val}}'{% else %}0{% endif %}
+            }}).then(res => {
+            if(res.data.length){
+                const resultHTML =''
+                for (let i = 0; i < res.data.length; i++) {
+
+                   add_to = `<div class="col-md-12 col-sm-6"> <div class="product-grid"> <div class="product-image"> <a href="{% url 'single_page_view' %}${res.data[i].id}" class="image"> <img class="pic-1" src="${res.data[i].image}"> </a> <span class="product-discount-label">${res.data[i].city}</span> </div> <div class="product-content"> <h3 dir="rtl" class="title"><a href="{% url 'single_page_view' %}${res.data[i].id}">${res.data[i].title}</a></h3> <p dir="rtl" class="price"> ${res.data[i].details}</p> <a class="add-to-cart" href="{% url 'single_page_view' %}${res.data[i].id}">פרטים</a> </div> </div> </div>`
+                   geocodeQuery(`${res.data[i].city} ${res.data[i].street}`, add_to);
+                }
+            }
+            if(res.data.length<12){ document.getElementById("loader").style.display = "none"; }
+            if(res.data.length === 0 && page === 1){ document.getElementById("nofound").style.display = ""; }
+            })
+    }
+    loadData()
+    </script>
+    <script type='text/javascript' src='http://www.bing.com/api/maps/mapcontrol?callback=GetMap&key=[YOUR_BING_MAPS_KEY]' async defer></script>
+    <!-- Button trigger modal -->
 <!-- Modal -->
 <div dir="rtl" class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -451,7 +590,7 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <form id="search_form" class="modal-body" method="GET" action="{% url 'index' %}">
+        <form id="search_form" class="modal-body" method="GET" action="{% url 'map' %}">
             <div class="row">
                 <div class="col-sm-6">
                     <div class="form-field form-group" id="street-selection">
@@ -550,7 +689,6 @@
                         <label for="input" class="control-label">חיפוש חופשי</label>
                     </div>
                 </div>
-                <input style="display: none;" value="{% if sort_val %}{{sort_val}}{% else %}0{%endif%}" id="sort_val" name="sort_val" type="number">
                 <div class="col-sm-12">
                     <div class="">
                         <input id="search_btn" class="btn btn-primary col-sm-12" type="submit" value="חיפוש">
@@ -563,82 +701,17 @@
       </div>
     </div>
   </div>
-<div id="containerall" class="row col-md-12"> </div>
-<div id="loader" class="loader container">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="loader">
-                <div class="loader-inner"></div>
-                <div class="loader-inner"></div>
-                <div class="loader-inner"></div>
-            </div>
-        </div>
-    </div>
+  <div class="col-sm-12">
+    <div class="form-group">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">&nbsp; חיפוש &nbsp;&nbsp;&nbsp;<i class="glyphicon glyphicon-search"></i>
+        </button>
+        <a href="{% url 'index' %}" type="button" class="btn btn-primary">&nbsp; חיפוש רגיל &nbsp;&nbsp;&nbsp;<i class="glyphicon glyphicon-th"></i></a>
 </div>
-<div style="display: none;" id="nofound" class="loader">
-    <div>
-        <img width="100px" height="auto" src="https://firebasestorage.googleapis.com/v0/b/diro-ac902.appspot.com/o/no-results.png?alt=media&token=bbeb0188-282e-434f-a991-761a02870c16">
-        <p>אין תוצאות לחיפוש</p>
-    </div>
-</div>
-<script>
-    function make_city(){
-            if (document.getElementById('city_choice').value){document.getElementById('street_choice').disabled = false;}
-            else{document.getElementById('street_choice').disabled = true;}
-        }
-
-   function isElementInViewport(el) {
-        var rect = el.getBoundingClientRect();
-        return (rect.top >= 0 &&rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)
-  );
-}
-isActive = true
-    drk = document.getElementById(`idcat_0`);
-    if (drk) drk.classList.add("active")
-    mypage = 1
-    function loadNext12(){
-        axios.get('{% url "search" %}', { 
-            params: { 
-                last_index: {{max_index}},
-                page: mypage,
-                {% if apr.city %} city_choice: '{{apr.city}}', {% endif %}
-                {% if apr.street %} street_choice: '{{apr.street}}', {% endif %}
-                {% if apr.rent_price_from %} rent_price_from: '{{apr.rent_price_from}}', {% endif %}
-                {% if apr.rent_price_to %} rent_price_to: '{{apr.rent_price_to}}', {% endif %}
-                {% if apr.gender %} gender: '{{apr.gender}}', {% endif %}
-                {% if apr.kosher %} kosher: '{{apr.kosher}}', {% endif %}
-                {% if apr.search_key %} search_key: '{{apr.search_key}}', {% endif %}
-                {% if apr.entry_month %} entry_month: '{{apr.entry_month}}', {% endif %}
-                {% if apr.floor %} floor: '{{apr.floor}}', {% endif %}
-                {% if apr.partners %} partners: '{{apr.partners}}', {% endif %}
-                {% if apr.type %} type: '{{apr.type}}', {% endif %}
-                sort_val: {% if sort_val %}'{{sort_val}}'{% else %}0{% endif %}
-            }}).then(res => {
-            if(res.data.length){
-                const resultHTML =''
-                for (let i = 0; i < res.data.length; i++) {
-                   add_to = `<div class="col-md-3 col-sm-6"> <div class="product-grid"> <div class="product-image"> <a href="{% url 'single_page_view' %}${res.data[i].id}" class="image"> <img class="pic-1" src="${res.data[i].image}"> </a> <span class="product-discount-label">${res.data[i].city}</span> </div> <div class="product-content"> <h3 dir="rtl" class="title"><a href="{% url 'single_page_view' %}${res.data[i].id}">${res.data[i].title}</a></h3> <p dir="rtl" class="price"> ${res.data[i].details}</p> <a class="add-to-cart" href="{% url 'single_page_view' %}${res.data[i].id}">פרטים</a> </div> </div> </div>`
-                   containerall.innerHTML += add_to;
-                }
-                mypage += 1;                   
-                isActive = true;
-            }
-            if(res.data.length<12){ document.getElementById("loader").style.display = "none"; }
-            if(res.data.length === 0 && page === 1){ document.getElementById("nofound").style.display = ""; }
-            })
-                
-            
-            
-
-    }
-    loadNext12()
-    document.onscroll = function(){if(isActive && isElementInViewport(loader)){
-        isActive = false
-        loadNext12()
-
-    }};
-
-    const api_url = "https://data.gov.il/api/3/action/datastore_search";
+    <div id="myMap" style="position:relative; width:100%; height:500px;"></div>
+    <!-- <br />
+    <div id="listOfPins" style="max-height:250px;width:250px;overflow-y:scroll;"></div> -->
+    <script>
+        const api_url = "https://data.gov.il/api/3/action/datastore_search";
         // Cities endpoint
         const cities_resource_id = "5c78e9fa-c2e2-4771-93ff-7f400a12f7ba";
         // Streets endpoint
@@ -735,17 +808,5 @@ isActive = true
         document.getElementById("check_{{apr.gender}}").selected = "true"; 
         document.getElementById("kosher_{{apr.kosher}}").selected = "true"; 
         document.getElementById("type_{{apr.type}}").selected = "true";
-
-        function sort_dir(sort_to){
-            document.getElementById('sort_val').value = sort_to;
-            document.getElementById('search_form').submit();
-        }
-        function change_dir(){
-            x = parseInt(document.getElementById('sort_val').value);
-            if(x % 2 ===0 ){sort_dir(x+1);}
-            else{sort_dir(x-1);}
-
-        }
-        
-</script>
+    </script>
 {% endblock %}

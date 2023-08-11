@@ -196,8 +196,11 @@ def search(request):
     elif sort_val == 6 or sort_val == 7: sort_key = 'entry_date'
     elif sort_val == 8 or sort_val == 9: sort_key = 'floor'
     if sort_val % 2 == 0: sort_key = '-'+sort_key
-    query = query.filter(id__lte = last_index)
-    return JsonResponse([k.toJSON() for k in query.order_by(sort_key)[12*(page - 1):12*page]], safe=False)
+    if last_index: query = query.filter(id__lte = last_index)
+    if page != -1: return JsonResponse([k.toJSON() for k in query.order_by(sort_key)[12*(page - 1):12*page]], safe=False)
+    else: 
+        query = query.filter(entry_date__gte = datetime.now().date())
+        return JsonResponse([k.toJSON() for k in query.all()], safe=False)
 
 def register_page(request):
     if request.method == 'POST':
@@ -311,3 +314,20 @@ def vaild_account(request, user_id =0, token = None):
 # custom 404 view
 def custom_404(request, exception):
     return render(request, '404.html', status=404)
+
+def map(request):
+    city = request.GET.get('city_choice','')
+    street = request.GET.get('street_choice','')
+    rent_price_from = request.GET.get('rent_price_from','')
+    rent_price_to = request.GET.get('rent_price_to','')
+    gender = request.GET.get('gender',3)
+    search_key = request.GET.get('search_key','')
+    floor = request.GET.get('floor','')
+    partners = request.GET.get('partners','')
+    entry_month = request.GET.get('entry_month','')
+    kosher = request.GET.get('kosher',4)
+    type = request.GET.get('type',3)
+    search_value = {'city': city, 'street': street, 'rent_price_from': rent_price_from, 
+                    'rent_price_to': rent_price_to, 'gender':gender, 'search_key':search_key, 'entry_month':entry_month,
+                    'floor':floor, 'partners':partners, 'kosher': kosher, 'type':type}
+    return render(request, 'search_by_map.html', {'apr':search_value, 'title_page':'dirot-shutafim'})
