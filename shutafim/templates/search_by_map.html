@@ -424,20 +424,25 @@
 <script type="text/javascript">
     drk = document.getElementById(`idcat_0`);
     if (drk) drk.classList.add("active")
-
+    function make_city(){
+            if (document.getElementById('city_choice').value){document.getElementById('street_choice').disabled = false;}
+            else{document.getElementById('street_choice').disabled = true;}
+        }
+        
     var map, clusterLayer, infobox, searchManager;
     my_pins = [];
 	function GetMap() {
 	    map = new Microsoft.Maps.Map('#myMap', {
         // You need your key.
     credentials: 'Ahf2ctNhm6Ieybgct4-g4LhgKSBXrmZXofWgsoKlmsYxRH8QwvV2uFJNEjAz33dm',
-    bounds: Microsoft.Maps.LocationRect.fromCorners(new Microsoft.Maps.Location(29.491188, 34.903216), new Microsoft.Maps.Location(33.283839, 35.573265))
     });
+    map.setView({    bounds: Microsoft.Maps.LocationRect.fromCorners(new Microsoft.Maps.Location(29.491188, 34.903216), new Microsoft.Maps.Location(33.283839, 35.573265))});
 
         //Add an infobox to the map.
 	    infobox = new Microsoft.Maps.Infobox(map.getCenter(), { visible: false });
 	    infobox.setMap(map);
-        infobox.setOptions({maxHeight: 400});
+        infobox.setOptions({maxHeight: 400})
+        console.log(infobox.getOptions());
 
         Microsoft.Maps.loadModule("Microsoft.Maps.Clustering", function () {
             //Create a clustering layer
@@ -449,11 +454,11 @@
         });
 	}
 
-    function geocodeQuery(query, des){
+    function geocodeQuery3(query, des){
     if (!searchManager) {
         Microsoft.Maps.loadModule('Microsoft.Maps.Search', function () {
             searchManager = new Microsoft.Maps.Search.SearchManager(map);
-            geocodeQuery(query,des);
+            geocodeQuery3(query,des);
         });
     } else {
         let searchRequest = {
@@ -472,7 +477,7 @@
                 };
             },
             errorCallback: function (e) {
-                
+                alert("No results found.");
             }
         };
         searchManager.geocode(searchRequest);
@@ -568,8 +573,9 @@
             if(res.data.length){
                 const resultHTML =''
                 for (let i = 0; i < res.data.length; i++) {
+
                    add_to = `<div class="col-md-12 col-sm-6"> <div class="product-grid"> <div class="product-image"> <a href="{% url 'single_page_view' %}${res.data[i].id}" class="image"> <img class="pic-1" src="${res.data[i].image}"> </a> <span class="product-discount-label">${res.data[i].city}</span> </div> <div class="product-content"> <h3 dir="rtl" class="title"><a href="{% url 'single_page_view' %}${res.data[i].id}">${res.data[i].title}</a></h3> <p dir="rtl" class="price"> ${res.data[i].details}</p> <a class="add-to-cart" href="{% url 'single_page_view' %}${res.data[i].id}">פרטים</a> </div> </div> </div>`
-                   geocodeQuery(res.data[i].street + ' '+ res.data[i].city, add_to);
+                   geocodeQuery3(res.data[i].street + ', ' + res.data[i].city, add_to);
                 }
             }
             if(res.data.length<12){ document.getElementById("loader").style.display = "none"; }
@@ -594,7 +600,7 @@
                 <div class="col-sm-6">
                     <div class="form-field form-group" id="street-selection">
                         <input autocomplete="off" {% if apr %}value="{{apr.street}}" {% endif %} class="inputof" type="text"
-                            list="streets-data" id="street_choice" name="street_choice" {% if not apr.street %} disabled {% endif %} />
+                            list="streets-data" id="street_choice" name="street_choice" {% if not apr.city %} disabled {% endif %} />
                         <datalist id="streets-data">
                             <option value="">
                         </datalist>

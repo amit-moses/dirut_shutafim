@@ -282,7 +282,7 @@
                 <div class="col-sm-5">
                     <div class="form-field form-group" id="street-selection">
                         <input autocomplete="off" {% if apr %}value="{{apr.street}}" {% endif %} class="inputof" type="text"
-                            list="streets-data" id="street_choice" name="street_choice" required {% if not apr.street %} disabled {% endif %} />
+                            list="streets-data" id="street_choice" name="street_choice" required {% if not apr.city %} disabled {% endif %} />
                         <datalist id="streets-data">
                             <option value="">
                         </datalist>
