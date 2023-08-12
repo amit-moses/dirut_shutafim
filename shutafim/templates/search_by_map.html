@@ -437,6 +437,7 @@
 	    infobox = new Microsoft.Maps.Infobox(map.getCenter(), { visible: false });
 	    infobox.setMap(map);
         infobox.setOptions({maxHeight: 400})
+        console.log(infobox.getOptions());
 
         Microsoft.Maps.loadModule("Microsoft.Maps.Clustering", function () {
             //Create a clustering layer
@@ -471,7 +472,7 @@
                 };
             },
             errorCallback: function (e) {
-                
+                alert("No results found.");
             }
         };
         searchManager.geocode(searchRequest);
