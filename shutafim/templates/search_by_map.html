@@ -473,7 +473,7 @@
                 };
             },
             errorCallback: function (e) {
-                alert("No results found.");
+                
             }
         };
         searchManager.geocode(searchRequest);
@@ -573,8 +573,15 @@
                    add_to = `<div class="col-md-12 col-sm-6"> <div class="product-grid"> <div class="product-image"> <a href="{% url 'single_page_view' %}${res.data[i].id}" class="image"> <img class="pic-1" src="${res.data[i].image}"> </a> <span class="product-discount-label">${res.data[i].city}</span> </div> <div class="product-content"> <h3 dir="rtl" class="title"><a href="{% url 'single_page_view' %}${res.data[i].id}">${res.data[i].title}</a></h3> <p dir="rtl" class="price"> ${res.data[i].details}</p> <a class="add-to-cart" href="{% url 'single_page_view' %}${res.data[i].id}">פרטים</a> </div> </div> </div>`
                    geocodeQuery(`${res.data[i].street} ${res.data[i].city}`, add_to);
                 }
+                document.getElementById("loader").style.display = "none"; 
+                document.getElementById("myMap").style.visibility = "visible";
+
+                
+                
             }
-            if(res.data.length === 0 && page === 1){ document.getElementById("nofound").style.display = ""; }
+            if(res.data.length === 0){ 
+                document.getElementById("nofound").style.display = "";
+                document.getElementById("loader").style.display = "none";  }
             })
     }
     loadData()
@@ -707,7 +714,24 @@
         </button>
         <a href="{% url 'index' %}" type="button" class="btn btn-primary">&nbsp; חיפוש רגיל &nbsp;&nbsp;&nbsp;<i class="glyphicon glyphicon-th"></i></a>
 </div>
-    <div id="myMap" style="position:relative; width:100%; height:500px;"></div>
+<div id="loader" class="loader container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="loader">
+                <div class="loader-inner"></div>
+                <div class="loader-inner"></div>
+                <div class="loader-inner"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="display: none;" id="nofound" class="loader">
+    <div>
+        <img width="100px" height="auto" src="https://firebasestorage.googleapis.com/v0/b/diro-ac902.appspot.com/o/no-results.png?alt=media&token=bbeb0188-282e-434f-a991-761a02870c16">
+        <p>אין תוצאות לחיפוש</p>
+    </div>
+</div>
+    <div id="myMap" style="position:relative; width:100%; height:500px; visibility:hidden"></div>
     <!-- <br />
     <div id="listOfPins" style="max-height:250px;width:250px;overflow-y:scroll;"></div> -->
     <script>
