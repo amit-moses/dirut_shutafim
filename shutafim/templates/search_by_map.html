@@ -437,7 +437,6 @@
 	    infobox = new Microsoft.Maps.Infobox(map.getCenter(), { visible: false });
 	    infobox.setMap(map);
         infobox.setOptions({maxHeight: 400})
-        console.log(infobox.getOptions());
 
         Microsoft.Maps.loadModule("Microsoft.Maps.Clustering", function () {
             //Create a clustering layer
@@ -570,7 +569,8 @@
                 for (let i = 0; i < res.data.length; i++) {
 
                    add_to = `<div class="col-md-12 col-sm-6"> <div class="product-grid"> <div class="product-image"> <a href="{% url 'single_page_view' %}${res.data[i].id}" class="image"> <img class="pic-1" src="${res.data[i].image}"> </a> <span class="product-discount-label">${res.data[i].city}</span> </div> <div class="product-content"> <h3 dir="rtl" class="title"><a href="{% url 'single_page_view' %}${res.data[i].id}">${res.data[i].title}</a></h3> <p dir="rtl" class="price"> ${res.data[i].details}</p> <a class="add-to-cart" href="{% url 'single_page_view' %}${res.data[i].id}">פרטים</a> </div> </div> </div>`
-                   geocodeQuery(`${res.data[i].street} ${res.data[i].city}`, add_to);
+                   search_location = `רחוב ${res.data[i].street}, ${res.data[i].city}`;
+                   geocodeQuery(search_location, add_to);
                 }
             }
             if(res.data.length<12){ document.getElementById("loader").style.display = "none"; }
