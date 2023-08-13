@@ -115,3 +115,31 @@ class ImageData(models.Model):
     
     def __str__(self):
         return self.myurl
+    
+class Messages(models.Model):
+    user_to = models.ForeignKey(User, on_delete=models.CASCADE) 
+    apartment = models.ForeignKey(Apartment, on_delete=models.CASCADE)
+    datetime = models.DateField(default=timezone.now)
+    mes_content = models.CharField(null=False, max_length=500)
+    mes_from = models.CharField(null=False, max_length=100)
+    mes_contact = models.CharField(null=False, max_length=100)
+    mes_read = models.BooleanField(default=False)
+
+    def read_set(self):
+        if self.mes_read: return False
+        else:
+            self.mes_read = True
+            self.save()
+            return True
+    
+    def get_date_format(self):
+        return self.datetime.strftime('%d/%m/%Y %H:%M')
+    
+    def get_new_mes(self):
+        return len(self.user_to.messages_set.filter(mes_read = False).all())
+    
+    def get_all_mes(self):
+        return self.user_to.messages_set.order_by('-id')
+    
+    def __str__(self):
+        return self.mes_from

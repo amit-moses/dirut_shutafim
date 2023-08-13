@@ -5,14 +5,14 @@ from django.contrib import messages
 from datetime import datetime
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from shutafim.models import Apartment, ImageData
+from shutafim.models import Apartment, ImageData, Messages
 from django.core.mail import EmailMessage, get_connection
 from django.conf import settings
 from django import forms
 from captcha.fields import ReCaptchaField
 from captcha.widgets import ReCaptchaV2Checkbox
 import random
-  
+
 class Recaptcha(forms.Form):
     captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox, label="")
     
@@ -154,8 +154,7 @@ def myads(request):
     user = request.user
     if user: 
         if user.last_name != '1': return render(request, 'login.html', {'log': 'נא לאמת את כתובת המייל באמצעות מייל לאימות סיסמא שנשלח אליך בעת ההרשמה', 'title_page':'Log-in'})
-    context = {'apartments': Apartment.objects.filter(publisher = request.user.id).all(), 'title_page':'המודעות שלי'}
-    return render(request, 'myads.html', context)
+    return render(request, 'myads.html', {'title_page':'המודעות שלי'})
 
 def search(request):
     last_index = int(request.GET.get('last_index',0))
@@ -286,6 +285,8 @@ def send_email_to_publisher(request, apr_id = 0):
             mail = f'{user_to.first_name} שלום, \n הושארה לך הודעה בנוגע לדירה שפרסמת באתר \n הדירה: {str(apr)}, {apr.get_url()}\n מאת: {mes_from}\n תוכן ההודעה: {mes_content} \n פרטים ליצירת קשר: {mes_contact} \n \n '
             send_email(user_to.email, f'הודעה חדשה מ{mes_from} בקשר לדירה', mail)
             errmes = 2
+        newMes = Messages(user_to = apr.publisher,apartment = apr, mes_content = mes_content, mes_from = mes_from, mes_contact=mes_contact)
+        newMes.save()
     
     context = {'apr': apr, 'errmes': errmes, 'form': Recaptcha(), 'my_name_err': mes_from, 'my_con_err':mes_contact, 'my_mes_err':mes_content, 'title_page':apr.title}
     return render(request, 'singlepage.html', context)
@@ -331,3 +332,10 @@ def map(request):
                     'rent_price_to': rent_price_to, 'gender':gender, 'search_key':search_key, 'entry_month':entry_month,
                     'floor':floor, 'partners':partners, 'kosher': kosher, 'type':type}
     return render(request, 'search_by_map.html', {'apr':search_value, 'title_page':'dirot-shutafim'})
+
+@login_required
+def inbox(request):
+    user = request.user
+    if user: 
+        if user.last_name != '1': return render(request, 'login.html', {'log': 'נא לאמת את כתובת המייל באמצעות מייל לאימות סיסמא שנשלח אליך בעת ההרשמה', 'title_page':'Log-in'})
+    return render(request, 'messages.html', {'title_page':'messages'})

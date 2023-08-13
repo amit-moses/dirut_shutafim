@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+{% if user.messages_set.all %}
+<style>
+    .panel-heading {
+	background-color: #7ea4c7;
+	color: #fff;
+}
+.panel-heading:hover,
+.panel-heading:focus {
+	background-color: #9bc0e2;
+}
+
+.mylink:link { text-decoration: none; }
+
+
+.mylink:visited { text-decoration: none; }
+
+
+.mylink:hover { text-decoration: none; }
+
+
+.mylink:active { text-decoration: none; }
+</style>
+<div class="container">
+{% for msg in user.messages_set.all.first.get_all_mes %}
+<div dir="rtl" class="panel-group " id="accordion">
+    <a class="mylink" data-toggle="collapse" data-parent="#accordion" href="#collapse{{msg.id}}">
+        <div class="panel panel-default">
+      <div dir="rtl" class="panel-heading">
+        <h4 style="color: white;" class="panel-title">
+            {% if msg.read_set %}<span class="badge badge-pill badge-primary">חדש</span>{% endif %}
+          {{msg.get_date_format}}
+          <br>
+          הודעה מ:
+          {{msg.mes_from}}
+          <br>
+          פרטים ליצירת קשר: 
+          {{msg.mes_contact}}
+        </h4>
+      </div></a>
+      <div dir="rtl" id="collapse{{msg.id}}" class="panel-collapse collapse out">
+        <div class="panel-body"><a href="{{msg.apartment.get_url}}">קישור למודעה</a><br>{{msg.mes_content}}</div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p dir="rtl">לא התקבלו הודעות. אם כשערכת את המודעה לא אישרת ליצירת כפתור צור קשר, וברצונך לקבל הודעות ממעוניינים בדירה שפרסמת דרך האתר נא לאשר קבלת הודעות במסך עריכת המודעה</p>
+{% endif %}
+
+{% endblock %}

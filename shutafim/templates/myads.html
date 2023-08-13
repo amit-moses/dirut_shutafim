@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-{% if apartments %}
+{% if user.apartment_set.all %}
 <style>
     .product-grid{
     margin-top: 10px;
@@ -163,7 +163,7 @@
 }
 </style>
 <div class="row">
-    {% for apr in apartments %}
+    {% for apr in user.apartment_set.all %}
     <div class="col-md-3 col-sm-6">
         <div class="product-grid">
             <div class="product-image">

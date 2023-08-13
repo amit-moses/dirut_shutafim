@@ -14,7 +14,7 @@
                 {% if user.is_authenticated and user.last_name == '1' %}
                 <li id="idcat_5"><a href="{% url 'newadd' %}"><span class=""></span>מודעה חדשה</a></li>
                 <li id="idcat_4"><a href="{% url 'myads' %}"><span class=""></span>המודעות שלי</a></li>
-                <li id="idcat_3"><a href=""><span class=""></span> {{ user.username }}</a></li>
+                <li id="idcat_3"><a href="{% url 'inbox'%}"><span class=""></span> {% if user.messages_set.all.first.get_new_mes %}<span class="badge badge-light">{{user.messages_set.all.first.get_new_mes}}</span>{% endif %} {{ user.username }}</a></li>
                 <li id="idcat_2"><a href="{% url 'logout_page' %}"><span class="glyphicon glyphicon-log-out"></span> Log-out</a></li>
                 {% else %}
                 <li id="idcat_1"><a href="{% url 'login_page' %}"><span class="glyphicon glyphicon-user"></span> Log-in</a></li>
