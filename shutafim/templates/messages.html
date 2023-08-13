@@ -49,5 +49,8 @@
 {% else %}
 <p class="col-md-12" dir="rtl">לא התקבלו הודעות. אם כשערכת את המודעה לא אישרת ליצירת כפתור צור קשר, וברצונך לקבל הודעות ממעוניינים בדירה שפרסמת דרך האתר נא לאשר קבלת הודעות במסך עריכת המודעה</p>
 {% endif %}
-
+<script>
+  drk = document.getElementById(`idcat_3`);
+    if (drk) drk.classList.add("active")
+</script>
 {% endblock %}
