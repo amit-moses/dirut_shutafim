@@ -133,7 +133,6 @@ class Messages(models.Model):
             return True
     
     def get_date_format(self):
-        print(timezone.now())
         return self.pub_date.strftime('%d/%m/%Y %H:%M')
     
     def get_new_mes(self):
