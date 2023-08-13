@@ -119,7 +119,7 @@ class ImageData(models.Model):
 class Messages(models.Model):
     user_to = models.ForeignKey(User, on_delete=models.CASCADE) 
     apartment = models.ForeignKey(Apartment, on_delete=models.CASCADE)
-    datetime = models.DateField(default=timezone.now)
+    pub_date = models.DateTimeField(default=timezone.now)
     mes_content = models.CharField(null=False, max_length=500)
     mes_from = models.CharField(null=False, max_length=100)
     mes_contact = models.CharField(null=False, max_length=100)
@@ -133,7 +133,8 @@ class Messages(models.Model):
             return True
     
     def get_date_format(self):
-        return self.datetime.strftime('%d/%m/%Y %H:%M')
+        print(timezone.now())
+        return self.pub_date.strftime('%d/%m/%Y %H:%M')
     
     def get_new_mes(self):
         return len(self.user_to.messages_set.filter(mes_read = False).all())
