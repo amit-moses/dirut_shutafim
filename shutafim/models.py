@@ -6,7 +6,6 @@ from firebase_admin import credentials,initialize_app, storage
 from django.conf import settings
 import random
 
-
 class Apartment(models.Model):
     publisher = models.ForeignKey(User, on_delete=models.CASCADE) 
     city = models.CharField(null=False, max_length=100)#
@@ -79,7 +78,6 @@ class Apartment(models.Model):
         return ''.join(newId)
     
     def uploadImages(self,newimg):
-        print(newimg)
         bucket = storage.bucket()
         for kk in range(len(newimg)):
             path = f'ad{self.id}_{self.make_random_name()}'
@@ -89,7 +87,6 @@ class Apartment(models.Model):
             blob.upload_from_file(newimg[kk],content_type='image/jpg')
             blob.make_public()
             url_img = blob.public_url
-            print(url_img)
             if url_img: self.imagedata_set.create(myurl = url_img)
 
     def updateImages(self,newimg, existimg):
