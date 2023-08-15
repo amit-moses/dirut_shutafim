@@ -168,7 +168,7 @@
         <div class="product-grid">
             <div class="product-image">
                 <a href="{% url 'single_page_view' %}{{apr.id}}" class="image">
-                    <img class="pic-1" src="{% if apr.imagedata_set.all %}{{apr.imagedata_set.first}}{% else %} https://play-lh.googleusercontent.com/5rS-un965hkZuqUNA65RwkeqmGko91DVQHlAMCQ9lJlNguvXkCQzjl6OgAMOPZ2cCk4=w480-h960-rw {% endif %}">
+                    <img class="pic-1" src="{{ apr.get_first_img }}">
                 </a>
                 <span class="product-discount-label">{{apr.city}}</span>
             </div>

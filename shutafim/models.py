@@ -43,6 +43,10 @@ class Apartment(models.Model):
     def get_date_format(self):
         return self.entry_date.strftime('%d/%m/%Y')
     
+    def get_first_img(self):
+        if self.imagedata_set.all(): return self.imagedata_set.all()[0].myurl
+        else: return 'https://firebasestorage.googleapis.com/v0/b/diro-ac902.appspot.com/o/no-image-icon-23500.jpg?alt=media&token=a1d5a015-bf2e-489d-988a-6e143a76b8be'
+    
     def toJSON(self):
       return {"id": self.id, 
               "city": self.city , 
@@ -56,7 +60,7 @@ class Apartment(models.Model):
               "title": self.short_title(),
               "kosher": self.kosher,
               "type": self.type,
-              "image": self.imagedata_set.all()[0].myurl}
+              "image": self.get_first_img()}
 
     def delete_1_image(self, im):
         bucket = storage.bucket()
