@@ -20,6 +20,7 @@ class Apartment(models.Model):
     kosher = models.IntegerField(default=0)
     agree_mail = models.BooleanField(default=True)
     type = models.IntegerField(default=0)
+    update = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         if self.street: return self.city + ', ' + self.street
@@ -50,16 +51,8 @@ class Apartment(models.Model):
     def toJSON(self):
       return {"id": self.id, 
               "city": self.city , 
-              "street": self.street, 
-              "rent_price": self.rent_price, 
-              "floor": self.floor,
-              "partners": self.partners,
-              "gender": self.gender,
-              "entry_date": self.entry_date.strftime('%Y-%m-%d'),
               "details": self.short_details(),
               "title": self.short_title(),
-              "kosher": self.kosher,
-              "type": self.type,
               "image": self.get_first_img()}
 
     def delete_1_image(self, im):
@@ -77,7 +70,7 @@ class Apartment(models.Model):
                 self.delete_1_image(oldimg)
 
     def make_random_name(self):
-        options = 'abcdefg12345hij6789'
+        options = 'abcdefg12345hij6789r'
         newId = [options[random.randint(0, len(options)-1)] for k in range(6)]
         return ''.join(newId)
     
@@ -101,6 +94,13 @@ class Apartment(models.Model):
         for im in self.imagedata_set.all():
             self.delete_1_image(im)
     
+    def set_update(self):
+        self.update = timezone.now()
+        self.save()
+    
+    def is_update(self):
+        return timezone.now() - self.update < datetime.timedelta(hours=24)
+
 class ImageData(models.Model): 
     apartment = models.ForeignKey(Apartment, on_delete=models.CASCADE)
     myurl = models.CharField(max_length=250)

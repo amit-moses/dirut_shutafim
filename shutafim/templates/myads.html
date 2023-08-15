@@ -178,7 +178,12 @@
                 <div style="display: flex; align-items: stretch; justify-content: left;">
                         <form method="POST" action="{% url 'delete_apr' %}{{apr.id}}">
                             {% csrf_token %}
-                            <input style="flex-grow: 3; position: relative;" type="submit" class="btn btn-danger" value="מחיקה">
+                            <input style="flex-grow: 1; position: relative;" type="submit" class="btn btn-danger" value="מחיקה">
+                        </form>
+                        <div style="flex-grow: 1; position: relative;"></div>
+                        <form method="POST" action="{% url 'renew' %}{{apr.id}}">
+                            {% csrf_token %}
+                            <input style="flex-grow: 3; position: relative;" type="submit" class="btn btn-primary" {% if apr.is_update %} disabled {% endif %} value="פרסום יומי">
                         </form>
                         <div style="flex-grow: 1; position: relative;"></div>
                         <a style="flex-grow: 3; position: relative;" class="btn btn-primary" href="{% url 'newadd' %}{{apr.id}}">עריכה</a>
@@ -189,8 +194,6 @@
     </div>
     {% endfor %}
 </div>
-
-
 
 {% else %}
 <p class="col-md-12" dir="rtl">לא נמצאו מודעות.</p>

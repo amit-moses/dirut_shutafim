@@ -11,6 +11,8 @@ from django.conf import settings
 from django import forms
 from captcha.fields import ReCaptchaField
 from captcha.widgets import ReCaptchaV2Checkbox
+from django.utils import timezone
+
 import random
 
 class Recaptcha(forms.Form):
@@ -34,11 +36,6 @@ def send_vaildation_email(email, name, user_id, token):
     mes = f'שלום {name}, \n תודה שנרשמת לאתר! רצינו לוודא שזה באמת המייל שלך מאחר ותוכל להגדיר שאתה מעוניין לקבל הודעות ממשתמשים שיתעניינו בדירות שתפרסם באתר.\n על מנת להשלים את תהליך ההרשמה יש ללחוץ על הקישור המופיע במייל זה. לאחר לחיצה עליו, חשבונך יופעל.\n הקישור: \n{settings.MY_URL}vaild/{user_id}/{token} \n תודה!'
     send_email(email, 'אימות כתובת המייל' ,mes)
 
-def get_max_id():
-    query = Apartment.objects.order_by('-id')
-    if query: return query.first().id
-    else: return 0
-
 def index(request):
     sort_val = request.GET.get('sort_val',0)
     city = request.GET.get('city_choice','')
@@ -55,7 +52,7 @@ def index(request):
     search_value = {'city': city, 'street': street, 'rent_price_from': rent_price_from, 
                     'rent_price_to': rent_price_to, 'gender':gender, 'search_key':search_key, 'entry_month':entry_month,
                     'floor':floor, 'partners':partners, 'kosher': kosher, 'type':type}
-    return render(request, 'index.html', {'apr':search_value, 'sort_val': int(sort_val),'max_index':get_max_id(), 'title_page':'dirot-shutafim'})
+    return render(request, 'index.html', {'my_date': timezone.now().strftime('%Y-%m-%d %H:%M:%S'), 'apr':search_value, 'sort_val': int(sort_val), 'title_page':'dirot-shutafim'})
 
 @login_required
 def api(request, apr_id = -1):
@@ -157,7 +154,7 @@ def myads(request):
     return render(request, 'myads.html', {'title_page':'המודעות שלי'})
 
 def search(request):
-    last_index = int(request.GET.get('last_index',0))
+    updater = request.GET.get('updater',0)
     page = int(request.GET.get('page',1))
     sort_val = int(request.GET.get('sort_val',0))
     city = request.GET.get('city_choice')
@@ -189,14 +186,16 @@ def search(request):
     if search_key:
         query = query.filter(details__icontains = search_key) | query.filter(title__icontains = search_key)
     
-    sort_key = 'id'
+    sort_key = 'update'
     if sort_val == 2 or sort_val == 3: sort_key = 'rent_price'
     elif sort_val == 4 or sort_val == 5: sort_key = 'partners'
     elif sort_val == 6 or sort_val == 7: sort_key = 'entry_date'
     elif sort_val == 8 or sort_val == 9: sort_key = 'floor'
     if sort_val % 2 == 0: sort_key = '-'+sort_key
-    if last_index: query = query.filter(id__lte = last_index)
-    if page != -1: return JsonResponse([k.toJSON() for k in query.order_by(sort_key)[12*(page - 1):12*page]], safe=False)
+    if updater: query = query.filter(update__lt = datetime.strptime(updater, '%Y-%m-%d %H:%M:%S'))
+    if page != -1: 
+        result = query.order_by(sort_key)[12*(page - 1):12*page]
+        return JsonResponse([k.toJSON() for k in result], safe=False)
     else: 
         query = query.filter(entry_date__gte = datetime.now().date())
         return JsonResponse([k.toJSON() for k in query.all()], safe=False)
@@ -339,3 +338,13 @@ def inbox(request):
     if user: 
         if user.last_name != '1': return render(request, 'login.html', {'log': 'נא לאמת את כתובת המייל באמצעות מייל לאימות סיסמא שנשלח אליך בעת ההרשמה', 'title_page':'Log-in'})
     return render(request, 'messages.html', {'title_page':'messages'})
+
+@login_required
+def renew_ad(request, apr_id = 0):
+    if apr_id and request.method == 'POST':
+        apr = Apartment.objects.filter(pk = apr_id).all()
+        if apr: 
+            apr = apr[0]
+            if apr.publisher_id == request.user.id and not apr.is_update():
+                apr.set_update()
+    return redirect('myads')

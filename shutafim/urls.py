@@ -21,7 +21,7 @@ urlpatterns = [
     path("api/", views.api, name="api"),
     path("api/<int:apr_id>", views.api, name="api"),
     path("send_mes/", views.send_email_to_publisher, name="send_email_to_publisher"),
-    path("send_mes/<apr_id>", views.send_email_to_publisher, name="send_email_to_publisher"),
+    path("send_mes/<int:apr_id>", views.send_email_to_publisher, name="send_email_to_publisher"),
     path("vaild/", views.vaild_account, name="vaild_account"),
     path("vaild/<user_id>", views.vaild_account, name="vaild_account"),
     path("vaild/<user_id>/<token>", views.vaild_account, name="vaild_account"),
@@ -31,4 +31,6 @@ urlpatterns = [
     path("rest_password_complete/", auth_views.PasswordResetCompleteView.as_view(template_name = 'reset/password_reset_done.html'), name='password_reset_complete'),
     path("map/", views.map, name="map"),
     path("messages/", views.inbox, name="inbox"),
+    path("renew/", views.renew_ad, name="renew"),
+    path("renew/<int:apr_id>", views.renew_ad, name="renew"),
 ]

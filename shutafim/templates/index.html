@@ -431,7 +431,7 @@
             <button class="btn btn-primary" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">מיון לפי</button>
             <button onclick="change_dir()" class="btn btn-primary dropdown-toggle" data-sort="none"><i class="glyphicon glyphicon-triangle-{% if sort_val|divisibleby:2 %}bottom{% else %}top{%endif%}"></i></button>
             <ul class="dropdown-menu">
-                <li><a href="#" onclick="sort_dir({% if sort_val|divisibleby:2 %}0{% else %}1{%endif%})" data-type="alpha">תאריך פרסום</a></li>
+                <li><a href="#" onclick="sort_dir({% if sort_val|divisibleby:2 %}0{% else %}1{%endif%})" data-type="alpha">רלוונטי</a></li>
                 <li><a href="#" onclick="sort_dir({% if sort_val|divisibleby:2 %}6{% else %}7{%endif%})" data-type="alpha">תאריך כניסה</a></li>
                 <li><a href="#" onclick="sort_dir({% if sort_val|divisibleby:2 %}2{% else %}3{%endif%})" data-type="alpha">מחיר שכירות</a></li>
                 <li><a href="#" onclick="sort_dir({% if sort_val|divisibleby:2 %}4{% else %}5{%endif%})" data-type="alpha">מספר שותפים</a></li>
@@ -599,7 +599,7 @@ isActive = true
     function loadNext12(){
         axios.get('{% url "search" %}', { 
             params: { 
-                last_index: {{max_index}},
+                updater: '{{my_date}}',
                 page: mypage,
                 {% if apr.city %} city_choice: '{{apr.city}}', {% endif %}
                 {% if apr.street %} street_choice: '{{apr.street}}', {% endif %}
