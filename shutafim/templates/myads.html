@@ -162,7 +162,7 @@
     .product-grid{ margin: 0 0 30px; }
 }
 </style>
-<div class="row">
+<div class="row col-md-12">
     {% for apr in user.apartment_set.all %}
     <div class="col-md-3 col-sm-6">
         <div class="product-grid">
@@ -176,16 +176,14 @@
                 <h3 dir="rtl" class="title"><a href="{% url 'single_page_view' %}{{apr.id}}">{{apr.short_title}}</a></h3>
                 <p dir="rtl" class="price"> {{apr.short_details}}</p>
                 <div style="display: flex; align-items: stretch; justify-content: left;">
-                        <form method="POST" action="{% url 'delete_apr' %}{{apr.id}}">
+                        <form style="flex-grow: 2; position: relative;" method="POST" action="{% url 'delete_apr' %}{{apr.id}}">
                             {% csrf_token %}
-                            <input style="flex-grow: 1; position: relative;" type="submit" class="btn btn-danger" value="מחיקה">
+                            <input type="submit" class="btn btn-danger" value="מחיקה">
                         </form>
-                        <div style="flex-grow: 1; position: relative;"></div>
-                        <form method="POST" action="{% url 'renew' %}{{apr.id}}">
+                        <form style="flex-grow: 3; position: relative;" method="POST" action="{% url 'renew' %}{{apr.id}}">
                             {% csrf_token %}
-                            <input style="flex-grow: 3; position: relative;" type="submit" class="btn btn-primary" {% if apr.is_update %} disabled {% endif %} value="פרסום יומי">
+                            <input type="submit" class="btn btn-primary" {% if apr.is_update %} disabled {% endif %} value="פרסום יומי">
                         </form>
-                        <div style="flex-grow: 1; position: relative;"></div>
                         <a style="flex-grow: 3; position: relative;" class="btn btn-primary" href="{% url 'newadd' %}{{apr.id}}">עריכה</a>
 
                 </div>
