@@ -50,7 +50,8 @@ class Apartment(models.Model):
     
     def toJSON(self):
       return {"id": self.id, 
-              "city": self.city , 
+              "city": self.city,
+              "street": self.street,
               "details": self.short_details(),
               "title": self.short_title(),
               "image": self.get_first_img()}
