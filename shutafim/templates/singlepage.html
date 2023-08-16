@@ -532,7 +532,7 @@
                 </div>
                 <div class="col-sm-12">
                     <div class="form-group">
-                        <textarea name="mes_content" required>{% if errmes == 3 %}{{my_mes_err}}{% endif %}</textarea>
+                        <textarea maxlength="499" name="mes_content" required>{% if errmes == 3 %}{{my_mes_err}}{% endif %}</textarea>
                         
                         <label for="textarea" class="control-label">תוכן ההודעה</label>
                     </div>
