@@ -1,0 +1,1 @@
+web: gunicorn dirot_project.wsgi --log-file-
