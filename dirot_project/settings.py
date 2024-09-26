@@ -30,25 +30,7 @@ ALLOWED_HOSTS = ['127.0.0.1','dirot-shutafim.onrender.com', 'dirutshutafim-env.u
 import os
 import json
 from dotenv import load_dotenv
-from firebase_admin import credentials,initialize_app
 load_dotenv()
-
-fire_key = {
-  "type": "service_account",
-  "project_id": "shop-react-a",
-  "private_key_id": "e381268f42b48b7843781570c61cb601aef4b08d",
-  "private_key": os.environ.get('FIRE_KEY'),
-  "client_email": os.environ.get('FIRE_CLIENT'),
-  "client_id": os.environ.get('FIRE_CLI_ID'),
-  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-  "token_uri": "https://oauth2.googleapis.com/token",
-  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-uep80%40shop-react-a.iam.gserviceaccount.com",
-  "universe_domain": "googleapis.com"
-}
-
-cred = credentials.Certificate(fire_key)
-initialize_app(cred, {'storageBucket': 'diro-ac902.appspot.com'})
 
 # Application definition
 
@@ -168,3 +150,7 @@ RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA1')
 RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA2')
 
 MY_URL = 'http://dirot-shutafim.onrender.com/'
+
+from firebase_admin import credentials,initialize_app
+cred = credentials.Certificate(json.loads(os.environ.get('FIREBASE_CONFIG')))
+initialize_app(cred, {'storageBucket': 'diro-ac902.appspot.com'})
